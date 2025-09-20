@@ -61,7 +61,7 @@ class UsersPublic(SQLModel):
 # Shared properties
 class PolygonBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
-    buffer_size: int = Field(default=0, max_length=3)
+    buffer_size: int = Field(default=0, ge=0, lt=100)
 
 
 # Properties to receive on polygon creation
@@ -72,7 +72,7 @@ class PolygonCreate(PolygonBase):
 # Properties to receive on polygon update
 class PolygonUpdate(PolygonBase):
     title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
-    buffer_size: int = Field(default=0, max_length=3)
+    buffer_size: int = Field(default=0, lt=100)
 
 
 # Database model, database table inferred from class name

@@ -17,9 +17,9 @@ from app.models import (
 router = APIRouter(prefix="/polygons", tags=["polygons"])
 
 
-@router.get("/", response_model=Polygon)
+@router.get("/", response_model=PolygonsPublic)
 def read_polygons(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    *, session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     """
     Retrieve polygons
