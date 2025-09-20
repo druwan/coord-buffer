@@ -71,119 +71,6 @@ export const HTTPValidationErrorSchema = {
     title: 'HTTPValidationError'
 } as const;
 
-export const ItemCreateSchema = {
-    properties: {
-        title: {
-            type: 'string',
-            maxLength: 255,
-            minLength: 1,
-            title: 'Title'
-        },
-        description: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Description'
-        }
-    },
-    type: 'object',
-    required: ['title'],
-    title: 'ItemCreate'
-} as const;
-
-export const ItemPublicSchema = {
-    properties: {
-        title: {
-            type: 'string',
-            maxLength: 255,
-            minLength: 1,
-            title: 'Title'
-        },
-        description: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Description'
-        },
-        id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Id'
-        },
-        owner_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Owner Id'
-        }
-    },
-    type: 'object',
-    required: ['title', 'id', 'owner_id'],
-    title: 'ItemPublic'
-} as const;
-
-export const ItemUpdateSchema = {
-    properties: {
-        title: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255,
-                    minLength: 1
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Title'
-        },
-        description: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Description'
-        }
-    },
-    type: 'object',
-    title: 'ItemUpdate'
-} as const;
-
-export const ItemsPublicSchema = {
-    properties: {
-        data: {
-            items: {
-                '$ref': '#/components/schemas/ItemPublic'
-            },
-            type: 'array',
-            title: 'Data'
-        },
-        count: {
-            type: 'integer',
-            title: 'Count'
-        }
-    },
-    type: 'object',
-    required: ['data', 'count'],
-    title: 'ItemsPublic'
-} as const;
-
 export const MessageSchema = {
     properties: {
         message: {
@@ -212,6 +99,102 @@ export const NewPasswordSchema = {
     type: 'object',
     required: ['token', 'new_password'],
     title: 'NewPassword'
+} as const;
+
+export const PolygonCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        buffer_size: {
+            type: 'integer',
+            maxLength: 3,
+            title: 'Buffer Size',
+            default: 0
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'PolygonCreate'
+} as const;
+
+export const PolygonPublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        buffer_size: {
+            type: 'integer',
+            maxLength: 3,
+            title: 'Buffer Size',
+            default: 0
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        owner_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Owner Id'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'owner_id'],
+    title: 'PolygonPublic'
+} as const;
+
+export const PolygonUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        buffer_size: {
+            type: 'integer',
+            exclusiveMaximum: 100,
+            minimum: 0,
+            title: 'Buffer Size',
+            default: 0
+        }
+    },
+    type: 'object',
+    title: 'PolygonUpdate'
+} as const;
+
+export const PolygonsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/PolygonPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'PolygonsPublic'
 } as const;
 
 export const PrivateUserCreateSchema = {

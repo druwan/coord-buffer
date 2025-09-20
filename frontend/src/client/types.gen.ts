@@ -13,28 +13,6 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
-export type ItemCreate = {
-    title: string;
-    description?: (string | null);
-};
-
-export type ItemPublic = {
-    title: string;
-    description?: (string | null);
-    id: string;
-    owner_id: string;
-};
-
-export type ItemsPublic = {
-    data: Array<ItemPublic>;
-    count: number;
-};
-
-export type ItemUpdate = {
-    title?: (string | null);
-    description?: (string | null);
-};
-
 export type Message = {
     message: string;
 };
@@ -42,6 +20,28 @@ export type Message = {
 export type NewPassword = {
     token: string;
     new_password: string;
+};
+
+export type PolygonCreate = {
+    title: string;
+    buffer_size?: number;
+};
+
+export type PolygonPublic = {
+    title: string;
+    buffer_size?: number;
+    id: string;
+    owner_id: string;
+};
+
+export type PolygonsPublic = {
+    data: Array<PolygonPublic>;
+    count: number;
+};
+
+export type PolygonUpdate = {
+    title?: (string | null);
+    buffer_size?: number;
 };
 
 export type PrivateUserCreate = {
@@ -107,38 +107,6 @@ export type ValidationError = {
     type: string;
 };
 
-export type ItemsReadItemsData = {
-    limit?: number;
-    skip?: number;
-};
-
-export type ItemsReadItemsResponse = (ItemsPublic);
-
-export type ItemsCreateItemData = {
-    requestBody: ItemCreate;
-};
-
-export type ItemsCreateItemResponse = (ItemPublic);
-
-export type ItemsReadItemData = {
-    id: string;
-};
-
-export type ItemsReadItemResponse = (ItemPublic);
-
-export type ItemsUpdateItemData = {
-    id: string;
-    requestBody: ItemUpdate;
-};
-
-export type ItemsUpdateItemResponse = (ItemPublic);
-
-export type ItemsDeleteItemData = {
-    id: string;
-};
-
-export type ItemsDeleteItemResponse = (Message);
-
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;
 };
@@ -164,6 +132,38 @@ export type LoginRecoverPasswordHtmlContentData = {
 };
 
 export type LoginRecoverPasswordHtmlContentResponse = (string);
+
+export type PolygonsReadPolygonsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type PolygonsReadPolygonsResponse = (PolygonsPublic);
+
+export type PolygonsCreatePolygonData = {
+    requestBody: PolygonCreate;
+};
+
+export type PolygonsCreatePolygonResponse = (PolygonPublic);
+
+export type PolygonsReadPolygonData = {
+    id: string;
+};
+
+export type PolygonsReadPolygonResponse = (PolygonPublic);
+
+export type PolygonsUpdatePolygonData = {
+    id: string;
+    requestBody: PolygonUpdate;
+};
+
+export type PolygonsUpdatePolygonResponse = (PolygonPublic);
+
+export type PolygonsDeletePolygonData = {
+    id: string;
+};
+
+export type PolygonsDeletePolygonResponse = (Message);
 
 export type PrivateCreateUserData = {
     requestBody: PrivateUserCreate;
