@@ -43,7 +43,9 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    polygons: list["Polygon"] = Relationship(
+        back_populates="owner", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -57,38 +59,39 @@ class UsersPublic(SQLModel):
 
 
 # Shared properties
-class ItemBase(SQLModel):
+class PolygonBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
+    buffer_size: int = Field(default=0, max_length=3)
 
 
-# Properties to receive on item creation
-class ItemCreate(ItemBase):
+# Properties to receive on polygon creation
+class PolygonCreate(PolygonBase):
     pass
 
 
-# Properties to receive on item update
-class ItemUpdate(ItemBase):
+# Properties to receive on polygon update
+class PolygonUpdate(PolygonBase):
     title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
+    buffer_size: int = Field(default=0, max_length=3)
 
 
 # Database model, database table inferred from class name
-class Item(ItemBase, table=True):
+class Polygon(PolygonBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
-    owner: User | None = Relationship(back_populates="items")
+    owner: User | None = Relationship(back_populates="polygons")
 
 
 # Properties to return via API, id is always required
-class ItemPublic(ItemBase):
+class PolygonPublic(PolygonBase):
     id: uuid.UUID
     owner_id: uuid.UUID
 
 
-class itemsPublic(SQLModel):
-    data: list[ItemPublic]
+class PolygonsPublic(SQLModel):
+    data: list[PolygonPublic]
     count: int
 
 
