@@ -1,4 +1,5 @@
 import {
+  Box,
   Container,
   EmptyState,
   Flex,
@@ -20,6 +21,8 @@ import {
   PaginationRoot,
 } from '@/components/ui/pagination';
 import AddPolygon from '@/components/Polygons/AddPolygon';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { useEffect } from 'react';
 
 const polygonsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -135,14 +138,51 @@ function PolygonsTable() {
   );
 }
 
+function MapResizer() {
+  const map = useMap()
+  useEffect(() => {
+    setTimeout(() => {
+      map.invalidateSize()
+    }, 200)
+  }, [map])
+  return null
+}
+
 function Polygons() {
   return (
-    <Container maxW={'full'}>
-      <Heading size={'lg'} pt={12}>
+    <Container maxW="6xl" py={12}>
+      <Heading size="lg" mb={6}>
         Polygons Management
       </Heading>
-      <AddPolygon />
-      <PolygonsTable />
+
+      {/* Map Section */}
+      <Box w="100%"
+        h="500px"
+        mb={8}
+        borderRadius="lg"
+        overflow="hidden"
+        shadow="md"
+        position="relative"
+      >
+        <MapContainer
+          center={[59.33126388211133, 18.081407431369865]}
+          zoom={13}
+          scrollWheelZoom={false}
+          style={{ height: '500px', width: '100%' }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <MapResizer />
+        </MapContainer>
+      </Box>
+
+      {/* Add Polygon + Table */}
+      <VStack align="stretch">
+        <AddPolygon />
+        <PolygonsTable />
+      </VStack>
     </Container>
   );
 }

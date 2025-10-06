@@ -10,6 +10,7 @@ import ReactDOM from "react-dom/client"
 import { CustomProvider } from "@/components/ui/provider"
 import { ApiError, OpenAPI } from "./client"
 import { routeTree } from "./routeTree.gen"
+import "leaflet/dist/leaflet.css"
 
 OpenAPI.BASE = import.meta.env.VITE_API_URL
 OpenAPI.TOKEN = async () => {
