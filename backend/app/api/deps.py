@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
-from sqlmodel import Session
+from sqlmodel import Session, create_engine
 
 from app.core import security
 from app.core.config import settings
@@ -17,13 +17,21 @@ reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
 )
 
+external_engine = create_engine(str(settings.SQLALCHEMY_AIP_DATABASE_URI))
+
 
 def get_db() -> Generator[Session, None, None]:
     with Session(engine) as session:
         yield session
 
 
+def get_external_db() -> Generator[Session, None, None]:
+    with Session(external_engine) as session:
+        yield session
+
+
 SessionDep = Annotated[Session, Depends(get_db)]
+ExternalSessionDep = Annotated[Session, Depends(get_external_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
 

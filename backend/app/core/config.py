@@ -56,6 +56,13 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
 
+    # AIP Postgres
+    AIP_POSTGRES_SERVER: str
+    AIP_POSTGRES_PORT: int = 5432
+    AIP_POSTGRES_DB: str = ""
+    AIP_POSTGRES_USER: str = ""
+    AIP_POSTGRES_PASSWORD: str = ""
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
@@ -66,6 +73,18 @@ class Settings(BaseSettings):
             host=self.POSTGRES_SERVER,
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
+        )
+
+    @computed_field
+    @property
+    def SQLALCHEMY_AIP_DATABASE_URI(self) -> PostgresDsn:
+        return PostgresDsn.build(
+            scheme="postgresql+psycopg",
+            username=self.AIP_POSTGRES_USER,
+            password=self.AIP_POSTGRES_PASSWORD,
+            host=self.AIP_POSTGRES_SERVER,
+            port=self.AIP_POSTGRES_PORT,
+            path=self.AIP_POSTGRES_DB,
         )
 
     SMTP_TLS: bool = True

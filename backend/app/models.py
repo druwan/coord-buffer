@@ -95,6 +95,15 @@ class PolygonsPublic(SQLModel):
     count: int
 
 
+# AIP
+class ExternalPolygons(SQLModel, table=True):
+    __tablename__ = "aip_data"
+    msid: int = Field(primary_key=True)
+    nameofarea: str
+    positionindicator: str
+    geom: str
+
+
 # Generic message
 class Message(SQLModel):
     message: str
