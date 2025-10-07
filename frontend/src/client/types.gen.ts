@@ -9,6 +9,13 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+export type ExternalPolygons = {
+    msid: number;
+    nameofarea: string;
+    positionindicator: string;
+    geom: string;
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -25,6 +32,8 @@ export type NewPassword = {
 export type PolygonCreate = {
     title: string;
     buffer_size?: number;
+    coordinates: string;
+    positionindicator: string;
 };
 
 export type PolygonPublic = {
@@ -106,6 +115,13 @@ export type ValidationError = {
     msg: string;
     type: string;
 };
+
+export type AipPolygonsReadExternalPolygonsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type AipPolygonsReadExternalPolygonsResponse = (Array<ExternalPolygons>);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

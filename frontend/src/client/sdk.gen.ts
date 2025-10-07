@@ -3,7 +3,32 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PolygonsReadPolygonsData, PolygonsReadPolygonsResponse, PolygonsCreatePolygonData, PolygonsCreatePolygonResponse, PolygonsReadPolygonData, PolygonsReadPolygonResponse, PolygonsUpdatePolygonData, PolygonsUpdatePolygonResponse, PolygonsDeletePolygonData, PolygonsDeletePolygonResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { AipPolygonsReadExternalPolygonsData, AipPolygonsReadExternalPolygonsResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PolygonsReadPolygonsData, PolygonsReadPolygonsResponse, PolygonsCreatePolygonData, PolygonsCreatePolygonResponse, PolygonsReadPolygonData, PolygonsReadPolygonResponse, PolygonsUpdatePolygonData, PolygonsUpdatePolygonResponse, PolygonsDeletePolygonData, PolygonsDeletePolygonResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+
+export class AipPolygonsService {
+    /**
+     * Read External Polygons
+     * Retrieve polygons from aip_data
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns ExternalPolygons Successful Response
+     * @throws ApiError
+     */
+    public static readExternalPolygons(data: AipPolygonsReadExternalPolygonsData = {}): CancelablePromise<AipPolygonsReadExternalPolygonsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/aip-polygons/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
 
 export class LoginService {
     /**

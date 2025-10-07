@@ -57,6 +57,30 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const ExternalPolygonsSchema = {
+    properties: {
+        msid: {
+            type: 'integer',
+            title: 'Msid'
+        },
+        nameofarea: {
+            type: 'string',
+            title: 'Nameofarea'
+        },
+        positionindicator: {
+            type: 'string',
+            title: 'Positionindicator'
+        },
+        geom: {
+            type: 'string',
+            title: 'Geom'
+        }
+    },
+    type: 'object',
+    required: ['msid', 'nameofarea', 'positionindicator', 'geom'],
+    title: 'ExternalPolygons'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
@@ -111,13 +135,22 @@ export const PolygonCreateSchema = {
         },
         buffer_size: {
             type: 'integer',
-            maxLength: 3,
+            exclusiveMaximum: 100,
+            minimum: 0,
             title: 'Buffer Size',
             default: 0
+        },
+        coordinates: {
+            type: 'string',
+            title: 'Coordinates'
+        },
+        positionindicator: {
+            type: 'string',
+            title: 'Positionindicator'
         }
     },
     type: 'object',
-    required: ['title'],
+    required: ['title', 'coordinates', 'positionindicator'],
     title: 'PolygonCreate'
 } as const;
 
@@ -131,7 +164,8 @@ export const PolygonPublicSchema = {
         },
         buffer_size: {
             type: 'integer',
-            maxLength: 3,
+            exclusiveMaximum: 100,
+            minimum: 0,
             title: 'Buffer Size',
             default: 0
         },
@@ -169,7 +203,6 @@ export const PolygonUpdateSchema = {
         buffer_size: {
             type: 'integer',
             exclusiveMaximum: 100,
-            minimum: 0,
             title: 'Buffer Size',
             default: 0
         }

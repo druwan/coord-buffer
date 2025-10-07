@@ -66,7 +66,8 @@ class PolygonBase(SQLModel):
 
 # Properties to receive on polygon creation
 class PolygonCreate(PolygonBase):
-    pass
+    coordinates: str
+    positionindicator: str
 
 
 # Properties to receive on polygon update

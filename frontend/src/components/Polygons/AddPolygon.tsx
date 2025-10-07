@@ -28,7 +28,11 @@ import {
 import { Field } from "../ui/field"
 
 type PolygonForm = PolygonCreate & {
+  title: string
+  buffer_size: number
   externalPolygon: number
+  coordinates?: string
+  positionindicator?: string
 }
 
 type ExternalPolygon = {
@@ -94,8 +98,8 @@ const AddPolygon = () => {
     const payload: PolygonCreate = {
       title: selectedPolygon.nameofarea,
       buffer_size: Number(data.buffer_size),
-      // coordinates: selectedPolygon.geom,
-      // positionindicator: selectedPolygon.positionindicator
+      coordinates: selectedPolygon.geom!,
+      positionindicator: selectedPolygon.positionindicator || "",
     }
     console.log(payload)
     mutation.mutate(payload)
