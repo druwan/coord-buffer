@@ -1,10 +1,10 @@
-import { Button, DialogTitle, Text } from '@chakra-ui/react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { FiTrash2 } from 'react-icons/fi';
+import { Button, DialogTitle, Text } from "@chakra-ui/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { FiTrash2 } from "react-icons/fi"
 
-import { PolygonsService } from '@/client';
+import { PolygonsService } from "@/client"
 import {
   DialogActionTrigger,
   DialogBody,
@@ -14,51 +14,51 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import useCustomToast from '@/hooks/useCustomToast';
+} from "@/components/ui/dialog"
+import useCustomToast from "@/hooks/useCustomToast"
 
 const DeletePolygon = ({ id }: { id: string }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { showSuccessToast, showErrorToast } = useCustomToast();
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
   const {
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm();
+  } = useForm()
 
   const deletePolygon = async (id: string) => {
-    await PolygonsService.deletePolygon({ id: id });
-  };
+    await PolygonsService.deletePolygon({ id: id })
+  }
 
   const mutation = useMutation({
     mutationFn: deletePolygon,
     onSuccess: () => {
-      showSuccessToast('The polygon was deleted successfully');
-      setIsOpen(false);
+      showSuccessToast("The polygon was deleted successfully")
+      setIsOpen(false)
     },
     onError: () => {
-      showErrorToast('An error occurred while deleting the polygon');
+      showErrorToast("An error occurred while deleting the polygon")
     },
     onSettled: () => {
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries()
     },
-  });
+  })
 
   const onSubmit = async () => {
-    mutation.mutate(id);
-  };
+    mutation.mutate(id)
+  }
 
   return (
     <DialogRoot
-      size={{ base: 'xs', md: 'md' }}
-      placement='center'
-      role='alertdialog'
+      size={{ base: "xs", md: "md" }}
+      placement="center"
+      role="alertdialog"
       open={isOpen}
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button variant='ghost' size='sm' colorPalette='red'>
-          <FiTrash2 fontSize='16px' />
+        <Button variant="ghost" size="sm" colorPalette="red">
+          <FiTrash2 fontSize="16px" />
           Delete Polygon
         </Button>
       </DialogTrigger>
@@ -79,17 +79,17 @@ const DeletePolygon = ({ id }: { id: string }) => {
           <DialogFooter gap={2}>
             <DialogActionTrigger asChild>
               <Button
-                variant='subtle'
-                colorPalette='gray'
+                variant="subtle"
+                colorPalette="gray"
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
             </DialogActionTrigger>
             <Button
-              variant='solid'
-              colorPalette='red'
-              type='submit'
+              variant="solid"
+              colorPalette="red"
+              type="submit"
               loading={isSubmitting}
             >
               Delete
@@ -98,7 +98,7 @@ const DeletePolygon = ({ id }: { id: string }) => {
         </form>
       </DialogContent>
     </DialogRoot>
-  );
-};
+  )
+}
 
-export default DeletePolygon;
+export default DeletePolygon

@@ -5,15 +5,15 @@ import {
   Input,
   Text,
   VStack,
-} from '@chakra-ui/react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { type SubmitHandler, useForm } from 'react-hook-form';
-import { FaExchangeAlt } from 'react-icons/fa';
+} from "@chakra-ui/react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import { FaExchangeAlt } from "react-icons/fa"
 
-import { type ApiError, type PolygonPublic, PolygonsService } from '@/client';
-import useCustomToast from '@/hooks/useCustomToast';
-import { handleError } from '@/utils';
+import { type ApiError, type PolygonPublic, PolygonsService } from "@/client"
+import useCustomToast from "@/hooks/useCustomToast"
+import { handleError } from "@/utils"
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -23,66 +23,66 @@ import {
   DialogRoot,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
-import { Field } from '../ui/field';
+} from "../ui/dialog"
+import { Field } from "../ui/field"
 
 interface EditPolygonProps {
-  polygon: PolygonPublic;
+  polygon: PolygonPublic
 }
 
 interface PolygonUpdateForm {
-  title: string;
-  buffer_size?: number;
+  title: string
+  buffer_size?: number
 }
 
 const EditPolygon = ({ polygon }: EditPolygonProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { showSuccessToast } = useCustomToast();
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { showSuccessToast } = useCustomToast()
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<PolygonUpdateForm>({
-    mode: 'onBlur',
-    criteriaMode: 'all',
+    mode: "onBlur",
+    criteriaMode: "all",
     defaultValues: {
       ...polygon,
       buffer_size: polygon.buffer_size ?? 0,
     },
-  });
+  })
 
   const mutation = useMutation({
     mutationFn: (data: PolygonUpdateForm) =>
       PolygonsService.updatePolygon({ id: polygon.id, requestBody: data }),
     onSuccess: () => {
-      showSuccessToast('Polygon updated successfully.');
-      reset();
-      setIsOpen(false);
+      showSuccessToast("Polygon updated successfully.")
+      reset()
+      setIsOpen(false)
     },
     onError: (err: ApiError) => {
-      handleError(err);
+      handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['polygons'] });
+      queryClient.invalidateQueries({ queryKey: ["polygons"] })
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<PolygonUpdateForm> = async (data) => {
-    mutation.mutate(data);
-  };
+    mutation.mutate(data)
+  }
 
   return (
     <DialogRoot
-      size={{ base: 'xs', md: 'md' }}
-      placement='center'
+      size={{ base: "xs", md: "md" }}
+      placement="center"
       open={isOpen}
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button variant='ghost'>
-          <FaExchangeAlt fontSize='16px' />
+        <Button variant="ghost">
+          <FaExchangeAlt fontSize="16px" />
           Edit Polygon
         </Button>
       </DialogTrigger>
@@ -98,26 +98,26 @@ const EditPolygon = ({ polygon }: EditPolygonProps) => {
                 required
                 invalid={!!errors.title}
                 errorText={errors.title?.message}
-                label='Title'
+                label="Title"
               >
                 <Input
-                  {...register('title', {
-                    required: 'Title is required',
+                  {...register("title", {
+                    required: "Title is required",
                   })}
-                  placeholder='Title'
-                  type='text'
+                  placeholder="Title"
+                  type="text"
                 />
               </Field>
 
               <Field
                 invalid={!!errors.buffer_size}
                 errorText={errors.buffer_size?.message}
-                label='buffer_size'
+                label="buffer_size"
               >
                 <Input
-                  {...register('buffer_size')}
-                  placeholder='Buffer size in Nautical miles'
-                  type='number'
+                  {...register("buffer_size")}
+                  placeholder="Buffer size in Nautical miles"
+                  type="number"
                 />
               </Field>
             </VStack>
@@ -127,14 +127,14 @@ const EditPolygon = ({ polygon }: EditPolygonProps) => {
             <ButtonGroup>
               <DialogActionTrigger asChild>
                 <Button
-                  variant='subtle'
-                  colorPalette='gray'
+                  variant="subtle"
+                  colorPalette="gray"
                   disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
               </DialogActionTrigger>
-              <Button variant='solid' type='submit' loading={isSubmitting}>
+              <Button variant="solid" type="submit" loading={isSubmitting}>
                 Save
               </Button>
             </ButtonGroup>
@@ -143,7 +143,7 @@ const EditPolygon = ({ polygon }: EditPolygonProps) => {
         <DialogCloseTrigger />
       </DialogContent>
     </DialogRoot>
-  );
-};
+  )
+}
 
-export default EditPolygon;
+export default EditPolygon

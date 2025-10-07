@@ -1,14 +1,14 @@
-import { Table } from '@chakra-ui/react';
-import { SkeletonText } from '../ui/skeleton';
+import { Table } from "@chakra-ui/react"
+import { SkeletonText } from "../ui/skeleton"
 
 const PendingPolygons = () => (
-  <Table.Root size={{ base: 'sm', md: 'md' }}>
+  <Table.Root size={{ base: "sm", md: "md" }}>
     <Table.Header>
       <Table.Row>
-        <Table.ColumnHeader w='sm'>ID</Table.ColumnHeader>
-        <Table.ColumnHeader w='sm'>Title</Table.ColumnHeader>
-        <Table.ColumnHeader w='sm'>Buffer Size</Table.ColumnHeader>
-        <Table.ColumnHeader w='sm'>Actions</Table.ColumnHeader>
+        <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
+        <Table.ColumnHeader w="sm">Title</Table.ColumnHeader>
+        <Table.ColumnHeader w="sm">Buffer Size</Table.ColumnHeader>
+        <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
       </Table.Row>
     </Table.Header>
     <Table.Body>
@@ -30,6 +30,6 @@ const PendingPolygons = () => (
       ))}
     </Table.Body>
   </Table.Root>
-);
+)
 
-export default PendingPolygons;
+export default PendingPolygons

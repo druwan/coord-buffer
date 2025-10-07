@@ -3,18 +3,19 @@ import {
   DialogActionTrigger,
   DialogTitle,
   Input,
+  NativeSelect,
   Text,
   VStack,
-} from '@chakra-ui/react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { type SubmitHandler, useForm } from 'react-hook-form';
-import { FaPlus } from 'react-icons/fa';
+} from "@chakra-ui/react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import { FaPlus } from "react-icons/fa"
 
-import { type PolygonCreate, PolygonsService } from '@/client';
-import type { ApiError } from '@/client/core/ApiError';
-import useCustomToast from '@/hooks/useCustomToast';
-import { handleError } from '@/utils';
+import { type PolygonCreate, PolygonsService } from "@/client"
+import type { ApiError } from "@/client/core/ApiError"
+import useCustomToast from "@/hooks/useCustomToast"
+import { handleError } from "@/utils"
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -23,57 +24,93 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTrigger,
-} from '../ui/dialog';
-import { Field } from '../ui/field';
+} from "../ui/dialog"
+import { Field } from "../ui/field"
+
+type PolygonForm = PolygonCreate & {
+  externalPolygon: number
+}
+
+type ExternalPolygon = {
+  msid: number
+  nameofarea: string
+  positionindicator?: string
+  geom?: string
+}
+
+const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "")
+const useExternalPolygons = () => {
+  return useQuery({
+    queryKey: ["external-polygons"],
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE}/api/v1/aip-polygons/`)
+      if (!res.ok) throw new Error("Failed to fetch external polygons")
+      return res.json()
+    },
+  })
+}
 
 const AddPolygon = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { showSuccessToast } = useCustomToast();
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { showSuccessToast } = useCustomToast()
+  const { data: externalPolygons, isLoading } = useExternalPolygons()
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<PolygonCreate>({
-    mode: 'onBlur',
-    criteriaMode: 'all',
+  } = useForm<PolygonForm>({
+    mode: "onBlur",
+    criteriaMode: "all",
     defaultValues: {
-      title: '',
+      title: "",
       buffer_size: 0,
     },
-  });
+  })
 
   const mutation = useMutation({
     mutationFn: (data: PolygonCreate) =>
       PolygonsService.createPolygon({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast('Item created successfully.');
-      reset();
-      setIsOpen(false);
+      showSuccessToast("Polygon created successfully.")
+      reset()
+      setIsOpen(false)
     },
     onError: (err: ApiError) => {
-      handleError(err);
+      handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['items'] });
+      queryClient.invalidateQueries({ queryKey: ["polygons"] })
     },
-  });
+  })
 
-  const onSubmit: SubmitHandler<PolygonCreate> = (data) => {
-    mutation.mutate(data);
-  };
+  const onSubmit: SubmitHandler<PolygonForm> = (data) => {
+    const selectedPolygon = externalPolygons.find(
+      (p: ExternalPolygon) => p.msid === Number(data.externalPolygon),
+    )
+    if (!selectedPolygon) return
+
+    const payload: PolygonCreate = {
+      title: selectedPolygon.nameofarea,
+      buffer_size: Number(data.buffer_size),
+      // coordinates: selectedPolygon.geom,
+      // positionindicator: selectedPolygon.positionindicator
+    }
+    console.log(payload)
+    mutation.mutate(payload)
+  }
 
   return (
     <DialogRoot
-      size={{ base: 'xs', md: 'md' }}
-      placement='center'
+      size={{ base: "xs", md: "md" }}
+      placement="center"
       open={isOpen}
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button value='add-item' my={4}>
-          <FaPlus fontSize='16px' />
+        <Button value="add-item" my={4}>
+          <FaPlus fontSize="16px" />
           Add Polygon
         </Button>
       </DialogTrigger>
@@ -87,28 +124,41 @@ const AddPolygon = () => {
             <VStack gap={4}>
               <Field
                 required
-                invalid={!!errors.title}
-                errorText={errors.title?.message}
-                label='Title'
+                invalid={!!errors.externalPolygon}
+                errorText={errors.externalPolygon?.message}
+                label="Select Polygon"
               >
-                <Input
-                  {...register('title', {
-                    required: 'Title is required.',
-                  })}
-                  placeholder='Title'
-                  type='text'
-                />
+                {isLoading ? (
+                  <Text>Loading polygons...</Text>
+                ) : (
+                  <NativeSelect.Root>
+                    <NativeSelect.Field
+                      {...register("externalPolygon")}
+                      placeholder="Choose a polygon"
+                    >
+                      {externalPolygons
+                        ?.slice()
+                        .sort((a: ExternalPolygon, b: ExternalPolygon) =>
+                          a.nameofarea.localeCompare(b.nameofarea),
+                        )
+                        .map((poly: any) => (
+                          <option key={poly.msid} value={poly.msid}>
+                            {poly.nameofarea}
+                          </option>
+                        ))}
+                    </NativeSelect.Field>
+                  </NativeSelect.Root>
+                )}
               </Field>
-
               <Field
                 invalid={!!errors.buffer_size}
                 errorText={errors.buffer_size?.message}
-                label='buffer_Size'
+                label="buffer_Size"
               >
                 <Input
-                  {...register('buffer_size')}
-                  placeholder='Buffer Size in Nautical miles'
-                  type='number'
+                  {...register("buffer_size")}
+                  placeholder="Buffer Size in Nautical miles"
+                  type="number"
                 />
               </Field>
             </VStack>
@@ -117,16 +167,16 @@ const AddPolygon = () => {
           <DialogFooter gap={2}>
             <DialogActionTrigger asChild>
               <Button
-                variant='subtle'
-                colorPalette='gray'
+                variant="subtle"
+                colorPalette="gray"
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
             </DialogActionTrigger>
             <Button
-              variant='solid'
-              type='submit'
+              variant="solid"
+              type="submit"
               disabled={!isValid}
               loading={isSubmitting}
             >
@@ -137,7 +187,7 @@ const AddPolygon = () => {
         <DialogCloseTrigger />
       </DialogContent>
     </DialogRoot>
-  );
-};
+  )
+}
 
-export default AddPolygon;
+export default AddPolygon
