@@ -9,9 +9,7 @@ import {
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useEffect } from "react"
 import { FiSearch } from "react-icons/fi"
-import { MapContainer, TileLayer, useMap } from "react-leaflet"
 import { z } from "zod"
 import { PolygonsService } from "@/client"
 import { PolygonActionsMenu } from "@/components/Common/PolygonActionsMenu"
@@ -23,6 +21,8 @@ import {
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination"
+import { PolygonMap } from "@/components/Common/PolygonMap"
+import { useState } from "react"
 
 const polygonsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -138,17 +138,9 @@ function PolygonsTable() {
   )
 }
 
-function MapResizer() {
-  const map = useMap()
-  useEffect(() => {
-    setTimeout(() => {
-      map.invalidateSize()
-    }, 200)
-  }, [map])
-  return null
-}
 
 function Polygons() {
+  const [selectedPolygon, setSelectedPolygon] = useState<any | null>(null)
   return (
     <Container maxW="6xl" py={12}>
       <Heading size="lg" mb={6}>
@@ -165,25 +157,12 @@ function Polygons() {
         shadow="md"
         position="relative"
       >
-        <MapContainer
-          center={[59.33126388211133, 18.081407431369865]}
-          zoom={13}
-          scrollWheelZoom={false}
-          style={{ height: "500px", width: "100%" }}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            subdomains="abcd"
-            maxZoom={20}
-          />
-          <MapResizer />
-        </MapContainer>
+        <PolygonMap polygon={selectedPolygon} />
       </Box>
 
       {/* Add Polygon + Table */}
       <VStack align="stretch">
-        <AddPolygon />
+        <AddPolygon onPolygonSelect={setSelectedPolygon} />
         <PolygonsTable />
       </VStack>
     </Container>

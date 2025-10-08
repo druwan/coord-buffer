@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 
 from pydantic import EmailStr
@@ -103,6 +104,13 @@ class ExternalPolygons(SQLModel, table=True):
     nameofarea: str
     positionindicator: str
     geom: str
+
+
+class ExternalPolygonsGeoJSON(SQLModel):
+    msid: int
+    nameofarea: str
+    positionindicator: str
+    geom: Optional[str]
 
 
 # Generic message

@@ -54,7 +54,7 @@ const useExternalPolygons = () => {
   })
 }
 
-const AddPolygon = () => {
+const AddPolygon = ({ onPolygonSelect }: { onPolygonSelect?: (poly: any) => void }) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -94,6 +94,8 @@ const AddPolygon = () => {
       (p: ExternalPolygon) => p.msid === Number(data.externalPolygon),
     )
     if (!selectedPolygon) return
+    onPolygonSelect?.(selectedPolygon)
+    console.log(`Selected Polygon: ${selectedPolygon.geom}`)
 
     const payload: PolygonCreate = {
       title: selectedPolygon.nameofarea,
@@ -138,6 +140,10 @@ const AddPolygon = () => {
                   <NativeSelect.Root>
                     <NativeSelect.Field
                       {...register("externalPolygon")}
+                      onChange={(e) => {
+                        const selected = externalPolygons.find((p: ExternalPolygon) => p.msid === Number(e.target.value))
+                        if (selected) onPolygonSelect?.(selected)
+                      }}
                       placeholder="Choose a polygon"
                     >
                       {externalPolygons
