@@ -104,6 +104,7 @@ class ExternalPolygons(SQLModel, table=True):
     nameofarea: str
     positionindicator: str
     geom: str
+    typeofarea: str
 
 
 class ExternalPolygonsGeoJSON(SQLModel):

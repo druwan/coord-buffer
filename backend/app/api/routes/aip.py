@@ -24,6 +24,7 @@ def read_external_polygons(
             ExternalPolygons.positionindicator,
             func.ST_AsGeoJSON(ExternalPolygons.geom).label("geom"),
         )
+        .where(ExternalPolygons.typeofarea == "TMAW")
         .offset(skip)
         .limit(limit)
     )
