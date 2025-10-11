@@ -148,9 +148,6 @@ const AddPolygon = ({ onPolygonSelect }: { onPolygonSelect?: (poly: any) => void
                     >
                       {externalPolygons
                         ?.slice()
-                        .sort((a: ExternalPolygon, b: ExternalPolygon) =>
-                          a.nameofarea.localeCompare(b.nameofarea),
-                        )
                         .map((poly: any) => (
                           <option key={poly.msid} value={poly.msid}>
                             {poly.nameofarea}

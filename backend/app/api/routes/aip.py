@@ -25,6 +25,7 @@ def read_external_polygons(
             func.ST_AsGeoJSON(ExternalPolygons.geom).label("geom"),
         )
         .where(ExternalPolygons.typeofarea == "TMAW")
+        .order_by(ExternalPolygons.nameofarea.collate("sv-SE-x-icu"))
         .offset(skip)
         .limit(limit)
     )

@@ -2,7 +2,8 @@ from typing import Optional
 import uuid
 
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import String
+from sqlmodel import Column, Field, Relationship, SQLModel
 
 
 # Shared properties
@@ -101,7 +102,7 @@ class PolygonsPublic(SQLModel):
 class ExternalPolygons(SQLModel, table=True):
     __tablename__ = "aip_data"
     msid: int = Field(primary_key=True)
-    nameofarea: str
+    nameofarea: str = Field(sa_column=Column(String, nullable=False))
     positionindicator: str
     geom: str
     typeofarea: str
