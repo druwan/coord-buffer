@@ -9,11 +9,11 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
-export type ExternalPolygons = {
+export type ExternalPolygonsGeoJSON = {
     msid: number;
     nameofarea: string;
     positionindicator: string;
-    geom: string;
+    geom: (string | null);
 };
 
 export type HTTPValidationError = {
@@ -41,6 +41,13 @@ export type PolygonPublic = {
     buffer_size?: number;
     id: string;
     owner_id: string;
+    positionindicator: string;
+    original_geometry?: ({
+    [key: string]: unknown;
+} | null);
+    buffered_geometry?: ({
+    [key: string]: unknown;
+} | null);
 };
 
 export type PolygonsPublic = {
@@ -121,7 +128,7 @@ export type AipPolygonsReadExternalPolygonsData = {
     skip?: number;
 };
 
-export type AipPolygonsReadExternalPolygonsResponse = (Array<ExternalPolygons>);
+export type AipPolygonsReadExternalPolygonsResponse = (Array<ExternalPolygonsGeoJSON>);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

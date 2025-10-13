@@ -12,7 +12,7 @@ export class AipPolygonsService {
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
-     * @returns ExternalPolygons Successful Response
+     * @returns ExternalPolygonsGeoJSON Successful Response
      * @throws ApiError
      */
     public static readExternalPolygons(data: AipPolygonsReadExternalPolygonsData = {}): CancelablePromise<AipPolygonsReadExternalPolygonsResponse> {

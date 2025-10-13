@@ -57,7 +57,7 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
-export const ExternalPolygonsSchema = {
+export const ExternalPolygonsGeoJSONSchema = {
     properties: {
         msid: {
             type: 'integer',
@@ -72,13 +72,20 @@ export const ExternalPolygonsSchema = {
             title: 'Positionindicator'
         },
         geom: {
-            type: 'string',
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Geom'
         }
     },
     type: 'object',
     required: ['msid', 'nameofarea', 'positionindicator', 'geom'],
-    title: 'ExternalPolygons'
+    title: 'ExternalPolygonsGeoJSON'
 } as const;
 
 export const HTTPValidationErrorSchema = {
@@ -178,10 +185,38 @@ export const PolygonPublicSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Owner Id'
+        },
+        positionindicator: {
+            type: 'string',
+            title: 'Positionindicator'
+        },
+        original_geometry: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Original Geometry'
+        },
+        buffered_geometry: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Buffered Geometry'
         }
     },
     type: 'object',
-    required: ['title', 'id', 'owner_id'],
+    required: ['title', 'id', 'owner_id', 'positionindicator'],
     title: 'PolygonPublic'
 } as const;
 
