@@ -1,6 +1,5 @@
 import uuid
 from typing import Any
-
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
@@ -12,6 +11,9 @@ from app.models import (
     PolygonPublic,
     PolygonsPublic,
     PolygonUpdate,
+)
+from app.core.buffer_utils import (
+    buffer_polygon,
 )
 
 router = APIRouter(prefix="/polygons", tags=["polygons"])
@@ -66,11 +68,34 @@ def create_polygon(
     """
     Store a buffered polygon
     """
-    polygon = Polygon.model_validate(polygon_in, update={"owner_id": current_user.id})
-    session.add(polygon)
+    original_geometry = polygon_in.coordinates
+    buffered_geometry = original_geometry
+
+    if polygon_in.buffer_size and polygon_in.buffer_size > 0:
+        try:
+            buffered_geometry = buffer_polygon(
+                original_geometry, polygon_in.buffer_size
+            )
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Buffering failed: {e}")
+
+    db_polygon = Polygon.model_validate(
+        {
+            "title": polygon_in.title,
+            "owner_id": current_user.id,
+            "buffer_size": polygon_in.buffer_size,
+            "positionindicator": polygon_in.positionindicator,
+        }
+    )
+    session.add(db_polygon)
     session.commit()
-    session.refresh(polygon)
-    return polygon
+    session.refresh(db_polygon)
+
+    return {
+        **db_polygon.dict(),
+        "original_geometry": original_geometry,
+        "buffered_geometry": buffered_geometry,
+    }
 
 
 @router.put("/{id}", response_model=PolygonPublic)
