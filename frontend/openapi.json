@@ -7,9 +7,7 @@
   "paths": {
     "/api/v1/login/access-token": {
       "post": {
-        "tags": [
-          "login"
-        ],
+        "tags": ["login"],
         "summary": "Login Access Token",
         "description": "OAuth2 compatible token login, get an access token for future requests",
         "operationId": "login-login_access_token",
@@ -49,9 +47,7 @@
     },
     "/api/v1/login/test-token": {
       "post": {
-        "tags": [
-          "login"
-        ],
+        "tags": ["login"],
         "summary": "Test Token",
         "description": "Test access token",
         "operationId": "login-test_token",
@@ -76,9 +72,7 @@
     },
     "/api/v1/password-recovery/{email}": {
       "post": {
-        "tags": [
-          "login"
-        ],
+        "tags": ["login"],
         "summary": "Recover Password",
         "description": "Password Recovery",
         "operationId": "login-recover_password",
@@ -119,9 +113,7 @@
     },
     "/api/v1/reset-password/": {
       "post": {
-        "tags": [
-          "login"
-        ],
+        "tags": ["login"],
         "summary": "Reset Password",
         "description": "Reset password",
         "operationId": "login-reset_password",
@@ -161,9 +153,7 @@
     },
     "/api/v1/password-recovery-html-content/{email}": {
       "post": {
-        "tags": [
-          "login"
-        ],
+        "tags": ["login"],
         "summary": "Recover Password Html Content",
         "description": "HTML Content for Password Recovery",
         "operationId": "login-recover_password_html_content",
@@ -209,9 +199,7 @@
     },
     "/api/v1/users/": {
       "get": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Read Users",
         "description": "Retrieve users.",
         "operationId": "users-read_users",
@@ -266,9 +254,7 @@
         }
       },
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Create User",
         "description": "Create new user.",
         "operationId": "users-create_user",
@@ -313,9 +299,7 @@
     },
     "/api/v1/users/me": {
       "get": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Read User Me",
         "description": "Get current user.",
         "operationId": "users-read_user_me",
@@ -338,9 +322,7 @@
         ]
       },
       "delete": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Delete User Me",
         "description": "Delete own user.",
         "operationId": "users-delete_user_me",
@@ -363,9 +345,7 @@
         ]
       },
       "patch": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Update User Me",
         "description": "Update own user.",
         "operationId": "users-update_user_me",
@@ -410,9 +390,7 @@
     },
     "/api/v1/users/me/password": {
       "patch": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Update Password Me",
         "description": "Update own password.",
         "operationId": "users-update_password_me",
@@ -457,9 +435,7 @@
     },
     "/api/v1/users/signup": {
       "post": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Register User",
         "description": "Create new user without the need to be logged in.",
         "operationId": "users-register_user",
@@ -499,9 +475,7 @@
     },
     "/api/v1/users/{user_id}": {
       "get": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Read User By Id",
         "description": "Get a specific user by id.",
         "operationId": "users-read_user_by_id",
@@ -546,9 +520,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Update User",
         "description": "Update a user.",
         "operationId": "users-update_user",
@@ -603,9 +575,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "users"
-        ],
+        "tags": ["users"],
         "summary": "Delete User",
         "description": "Delete a user.",
         "operationId": "users-delete_user",
@@ -652,9 +622,7 @@
     },
     "/api/v1/utils/test-email/": {
       "post": {
-        "tags": [
-          "utils"
-        ],
+        "tags": ["utils"],
         "summary": "Test Email",
         "description": "Test emails.",
         "operationId": "utils-test_email",
@@ -701,9 +669,7 @@
     },
     "/api/v1/utils/health-check/": {
       "get": {
-        "tags": [
-          "utils"
-        ],
+        "tags": ["utils"],
         "summary": "Health Check",
         "operationId": "utils-health_check",
         "responses": {
@@ -723,9 +689,7 @@
     },
     "/api/v1/polygons/": {
       "get": {
-        "tags": [
-          "polygons"
-        ],
+        "tags": ["polygons"],
         "summary": "Read Polygons",
         "description": "Retrieve polygons\nTODO: Retrieve from aip_data",
         "operationId": "polygons-read_polygons",
@@ -780,9 +744,7 @@
         }
       },
       "post": {
-        "tags": [
-          "polygons"
-        ],
+        "tags": ["polygons"],
         "summary": "Create Polygon",
         "description": "Store a buffered polygon",
         "operationId": "polygons-create_polygon",
@@ -827,9 +789,7 @@
     },
     "/api/v1/polygons/{id}": {
       "get": {
-        "tags": [
-          "polygons"
-        ],
+        "tags": ["polygons"],
         "summary": "Read Polygon",
         "description": "Get polygon by ID",
         "operationId": "polygons-read_polygon",
@@ -874,9 +834,7 @@
         }
       },
       "put": {
-        "tags": [
-          "polygons"
-        ],
+        "tags": ["polygons"],
         "summary": "Update Polygon",
         "description": "Update a polygon",
         "operationId": "polygons-update_polygon",
@@ -931,9 +889,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "polygons"
-        ],
+        "tags": ["polygons"],
         "summary": "Delete Polygon",
         "description": "Delete a buffered polygon",
         "operationId": "polygons-delete_polygon",
@@ -980,9 +936,7 @@
     },
     "/api/v1/aip-polygons/": {
       "get": {
-        "tags": [
-          "aip-polygons"
-        ],
+        "tags": ["aip-polygons"],
         "summary": "Read External Polygons",
         "description": "Retrieve polygons from aip_data",
         "operationId": "aip-polygons-read_external_polygons",
@@ -1038,9 +992,7 @@
     },
     "/api/v1/private/users/": {
       "post": {
-        "tags": [
-          "private"
-        ],
+        "tags": ["private"],
         "summary": "Create User",
         "description": "Create a new user.",
         "operationId": "private-create_user",
@@ -1134,10 +1086,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "username",
-          "password"
-        ],
+        "required": ["username", "password"],
         "title": "Body_login-login_access_token"
       },
       "ExternalPolygonsGeoJSON": {
@@ -1167,12 +1116,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "msid",
-          "nameofarea",
-          "positionindicator",
-          "geom"
-        ],
+        "required": ["msid", "nameofarea", "positionindicator", "geom"],
         "title": "ExternalPolygonsGeoJSON"
       },
       "HTTPValidationError": {
@@ -1196,9 +1140,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "message"
-        ],
+        "required": ["message"],
         "title": "Message"
       },
       "NewPassword": {
@@ -1215,10 +1157,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token",
-          "new_password"
-        ],
+        "required": ["token", "new_password"],
         "title": "NewPassword"
       },
       "PolygonCreate": {
@@ -1246,11 +1185,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "title",
-          "coordinates",
-          "positionindicator"
-        ],
+        "required": ["title", "coordinates", "positionindicator"],
         "title": "PolygonCreate"
       },
       "PolygonPublic": {
@@ -1308,12 +1243,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "title",
-          "id",
-          "owner_id",
-          "positionindicator"
-        ],
+        "required": ["title", "id", "owner_id", "positionindicator"],
         "title": "PolygonPublic"
       },
       "PolygonUpdate": {
@@ -1356,10 +1286,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "data",
-          "count"
-        ],
+        "required": ["data", "count"],
         "title": "PolygonsPublic"
       },
       "PrivateUserCreate": {
@@ -1383,11 +1310,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "password",
-          "full_name"
-        ],
+        "required": ["email", "password", "full_name"],
         "title": "PrivateUserCreate"
       },
       "Token": {
@@ -1403,9 +1326,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "access_token"
-        ],
+        "required": ["access_token"],
         "title": "Token"
       },
       "UpdatePassword": {
@@ -1424,10 +1345,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "current_password",
-          "new_password"
-        ],
+        "required": ["current_password", "new_password"],
         "title": "UpdatePassword"
       },
       "UserCreate": {
@@ -1468,10 +1386,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "title": "UserCreate"
       },
       "UserPublic": {
@@ -1511,10 +1426,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "id"
-        ],
+        "required": ["email", "id"],
         "title": "UserPublic"
       },
       "UserRegister": {
@@ -1545,10 +1457,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "title": "UserRegister"
       },
       "UserUpdate": {
@@ -1651,10 +1560,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "data",
-          "count"
-        ],
+        "required": ["data", "count"],
         "title": "UsersPublic"
       },
       "ValidationError": {
@@ -1683,11 +1589,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       }
     },

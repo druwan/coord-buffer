@@ -42,12 +42,8 @@ export type PolygonPublic = {
     id: string;
     owner_id: string;
     positionindicator: string;
-    original_geometry?: ({
-    [key: string]: unknown;
-} | null);
-    buffered_geometry?: ({
-    [key: string]: unknown;
-} | null);
+    original_geometry: string;
+    buffered_geometry: string;
 };
 
 export type PolygonsPublic = {

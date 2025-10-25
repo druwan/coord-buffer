@@ -1,5 +1,5 @@
-from typing import Optional
 import uuid
+from typing import Optional
 
 from pydantic import EmailStr
 from sqlalchemy import String
@@ -64,6 +64,9 @@ class UsersPublic(SQLModel):
 class PolygonBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)
     buffer_size: int = Field(default=0, ge=0, lt=100)
+    positionindicator: str | None = Field(default=None, max_length=4)
+    original_geometry: str | None = Field(default=None)
+    buffered_geometry: str | None = Field(default=None)
 
 
 # Properties to receive on polygon creation

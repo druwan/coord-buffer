@@ -191,32 +191,16 @@ export const PolygonPublicSchema = {
             title: 'Positionindicator'
         },
         original_geometry: {
-            anyOf: [
-                {
-                    additionalProperties: true,
-                    type: 'object'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            type: 'string',
             title: 'Original Geometry'
         },
         buffered_geometry: {
-            anyOf: [
-                {
-                    additionalProperties: true,
-                    type: 'object'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            type: 'string',
             title: 'Buffered Geometry'
         }
     },
     type: 'object',
-    required: ['title', 'id', 'owner_id', 'positionindicator'],
+    required: ['title', 'id', 'owner_id', 'positionindicator', 'original_geometry', 'buffered_geometry'],
     title: 'PolygonPublic'
 } as const;
 
