@@ -1,9 +1,13 @@
 import uuid
 from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
+from app.core.buffer_utils import (
+    buffer_polygon,
+)
 from app.models import (
     Message,
     Polygon,
@@ -11,9 +15,6 @@ from app.models import (
     PolygonPublic,
     PolygonsPublic,
     PolygonUpdate,
-)
-from app.core.buffer_utils import (
-    buffer_polygon,
 )
 
 router = APIRouter(prefix="/polygons", tags=["polygons"])

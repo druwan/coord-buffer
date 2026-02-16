@@ -1,6 +1,7 @@
 import json
-from shapely.geometry import shape, mapping
+
 import geopandas as gpd
+from shapely.geometry import mapping, shape
 
 BUFFER_MULTIPLIER = 1652
 DEFAULT_EPSG = 4326
