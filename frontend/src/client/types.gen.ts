@@ -13,11 +13,36 @@ export type ExternalPolygonsGeoJSON = {
     msid: number;
     nameofarea: string;
     positionindicator: string;
-    geom: (string | null);
+    geom: ({
+    [key: string]: unknown;
+} | null);
 };
 
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
+};
+
+export type ItemCreate = {
+    title: string;
+    description?: (string | null);
+};
+
+export type ItemPublic = {
+    title: string;
+    description?: (string | null);
+    id: string;
+    owner_id: string;
+    created_at?: (string | null);
+};
+
+export type ItemsPublic = {
+    data: Array<ItemPublic>;
+    count: number;
+};
+
+export type ItemUpdate = {
+    title?: (string | null);
+    description?: (string | null);
 };
 
 export type Message = {
@@ -32,18 +57,20 @@ export type NewPassword = {
 export type PolygonCreate = {
     title: string;
     buffer_size?: number;
+    positionindicator?: (string | null);
+    original_geometry?: (string | null);
+    buffered_geometry?: (string | null);
     coordinates: string;
-    positionindicator: string;
 };
 
 export type PolygonPublic = {
     title: string;
     buffer_size?: number;
+    positionindicator?: (string | null);
+    original_geometry?: (string | null);
+    buffered_geometry?: (string | null);
     id: string;
     owner_id: string;
-    positionindicator: string;
-    original_geometry: string;
-    buffered_geometry: string;
 };
 
 export type PolygonsPublic = {
@@ -54,6 +81,9 @@ export type PolygonsPublic = {
 export type PolygonUpdate = {
     title?: (string | null);
     buffer_size?: number;
+    positionindicator?: (string | null);
+    original_geometry?: (string | null);
+    buffered_geometry?: (string | null);
 };
 
 export type PrivateUserCreate = {
@@ -87,6 +117,7 @@ export type UserPublic = {
     is_superuser?: boolean;
     full_name?: (string | null);
     id: string;
+    created_at?: (string | null);
 };
 
 export type UserRegister = {
@@ -117,6 +148,10 @@ export type ValidationError = {
     loc: Array<(string | number)>;
     msg: string;
     type: string;
+    input?: unknown;
+    ctx?: {
+        [key: string]: unknown;
+    };
 };
 
 export type AipPolygonsReadExternalPolygonsData = {
@@ -125,6 +160,38 @@ export type AipPolygonsReadExternalPolygonsData = {
 };
 
 export type AipPolygonsReadExternalPolygonsResponse = (Array<ExternalPolygonsGeoJSON>);
+
+export type ItemsReadItemsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type ItemsReadItemsResponse = (ItemsPublic);
+
+export type ItemsCreateItemData = {
+    requestBody: ItemCreate;
+};
+
+export type ItemsCreateItemResponse = (ItemPublic);
+
+export type ItemsReadItemData = {
+    id: string;
+};
+
+export type ItemsReadItemResponse = (ItemPublic);
+
+export type ItemsUpdateItemData = {
+    id: string;
+    requestBody: ItemUpdate;
+};
+
+export type ItemsUpdateItemResponse = (ItemPublic);
+
+export type ItemsDeleteItemData = {
+    id: string;
+};
+
+export type ItemsDeleteItemResponse = (Message);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

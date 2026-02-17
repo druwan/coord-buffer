@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table"
 
 const PendingUsers = () => (
   <Table>
@@ -17,7 +17,7 @@ const PendingUsers = () => (
         <TableHead>Role</TableHead>
         <TableHead>Status</TableHead>
         <TableHead>
-          <span className='sr-only'>Actions</span>
+          <span className="sr-only">Actions</span>
         </TableHead>
       </TableRow>
     </TableHeader>
@@ -25,29 +25,29 @@ const PendingUsers = () => (
       {Array.from({ length: 5 }).map((_, index) => (
         <TableRow key={index}>
           <TableCell>
-            <Skeleton className='h-4 w-32' />
+            <Skeleton className="h-4 w-32" />
           </TableCell>
           <TableCell>
-            <Skeleton className='h-4 w-40' />
+            <Skeleton className="h-4 w-40" />
           </TableCell>
           <TableCell>
-            <Skeleton className='h-5 w-20 rounded-full' />
+            <Skeleton className="h-5 w-20 rounded-full" />
           </TableCell>
           <TableCell>
-            <div className='flex items-center gap-2'>
-              <Skeleton className='size-2 rounded-full' />
-              <Skeleton className='h-4 w-12' />
+            <div className="flex items-center gap-2">
+              <Skeleton className="size-2 rounded-full" />
+              <Skeleton className="h-4 w-12" />
             </div>
           </TableCell>
           <TableCell>
-            <div className='flex justify-end'>
-              <Skeleton className='size-8 rounded-md' />
+            <div className="flex justify-end">
+              <Skeleton className="size-8 rounded-md" />
             </div>
           </TableCell>
         </TableRow>
       ))}
     </TableBody>
   </Table>
-);
+)
 
-export default PendingUsers;
+export default PendingUsers

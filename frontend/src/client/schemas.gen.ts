@@ -74,7 +74,8 @@ export const ExternalPolygonsGeoJSONSchema = {
         geom: {
             anyOf: [
                 {
-                    type: 'string'
+                    additionalProperties: true,
+                    type: 'object'
                 },
                 {
                     type: 'null'
@@ -102,6 +103,131 @@ export const HTTPValidationErrorSchema = {
     title: 'HTTPValidationError'
 } as const;
 
+export const ItemCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'ItemCreate'
+} as const;
+
+export const ItemPublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        owner_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Owner Id'
+        },
+        created_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created At'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'owner_id'],
+    title: 'ItemPublic'
+} as const;
+
+export const ItemUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        }
+    },
+    type: 'object',
+    title: 'ItemUpdate'
+} as const;
+
+export const ItemsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/ItemPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'ItemsPublic'
+} as const;
+
 export const MessageSchema = {
     properties: {
         message: {
@@ -122,7 +248,7 @@ export const NewPasswordSchema = {
         },
         new_password: {
             type: 'string',
-            maxLength: 40,
+            maxLength: 128,
             minLength: 8,
             title: 'New Password'
         }
@@ -142,22 +268,53 @@ export const PolygonCreateSchema = {
         },
         buffer_size: {
             type: 'integer',
-            exclusiveMaximum: 100,
+            exclusiveMaximum: 50,
             minimum: 0,
             title: 'Buffer Size',
             default: 0
         },
+        positionindicator: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 4,
+                    minLength: 4
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Positionindicator'
+        },
+        original_geometry: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Original Geometry'
+        },
+        buffered_geometry: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Buffered Geometry'
+        },
         coordinates: {
             type: 'string',
             title: 'Coordinates'
-        },
-        positionindicator: {
-            type: 'string',
-            title: 'Positionindicator'
         }
     },
     type: 'object',
-    required: ['title', 'coordinates', 'positionindicator'],
+    required: ['title', 'coordinates'],
     title: 'PolygonCreate'
 } as const;
 
@@ -171,10 +328,45 @@ export const PolygonPublicSchema = {
         },
         buffer_size: {
             type: 'integer',
-            exclusiveMaximum: 100,
+            exclusiveMaximum: 50,
             minimum: 0,
             title: 'Buffer Size',
             default: 0
+        },
+        positionindicator: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 4,
+                    minLength: 4
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Positionindicator'
+        },
+        original_geometry: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Original Geometry'
+        },
+        buffered_geometry: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Buffered Geometry'
         },
         id: {
             type: 'string',
@@ -185,22 +377,10 @@ export const PolygonPublicSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Owner Id'
-        },
-        positionindicator: {
-            type: 'string',
-            title: 'Positionindicator'
-        },
-        original_geometry: {
-            type: 'string',
-            title: 'Original Geometry'
-        },
-        buffered_geometry: {
-            type: 'string',
-            title: 'Buffered Geometry'
         }
     },
     type: 'object',
-    required: ['title', 'id', 'owner_id', 'positionindicator', 'original_geometry', 'buffered_geometry'],
+    required: ['title', 'id', 'owner_id'],
     title: 'PolygonPublic'
 } as const;
 
@@ -221,9 +401,44 @@ export const PolygonUpdateSchema = {
         },
         buffer_size: {
             type: 'integer',
-            exclusiveMaximum: 100,
+            exclusiveMaximum: 50,
             title: 'Buffer Size',
             default: 0
+        },
+        positionindicator: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 4,
+                    minLength: 4
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Positionindicator'
+        },
+        original_geometry: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Original Geometry'
+        },
+        buffered_geometry: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Buffered Geometry'
         }
     },
     type: 'object',
@@ -295,13 +510,13 @@ export const UpdatePasswordSchema = {
     properties: {
         current_password: {
             type: 'string',
-            maxLength: 40,
+            maxLength: 128,
             minLength: 8,
             title: 'Current Password'
         },
         new_password: {
             type: 'string',
-            maxLength: 40,
+            maxLength: 128,
             minLength: 8,
             title: 'New Password'
         }
@@ -343,7 +558,7 @@ export const UserCreateSchema = {
         },
         password: {
             type: 'string',
-            maxLength: 40,
+            maxLength: 128,
             minLength: 8,
             title: 'Password'
         }
@@ -387,6 +602,18 @@ export const UserPublicSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Id'
+        },
+        created_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created At'
         }
     },
     type: 'object',
@@ -404,7 +631,7 @@ export const UserRegisterSchema = {
         },
         password: {
             type: 'string',
-            maxLength: 40,
+            maxLength: 128,
             minLength: 8,
             title: 'Password'
         },
@@ -467,7 +694,7 @@ export const UserUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 40,
+                    maxLength: 128,
                     minLength: 8
                 },
                 {
@@ -555,6 +782,13 @@ export const ValidationErrorSchema = {
         type: {
             type: 'string',
             title: 'Error Type'
+        },
+        input: {
+            title: 'Input'
+        },
+        ctx: {
+            type: 'object',
+            title: 'Context'
         }
     },
     type: 'object',
