@@ -1,112 +1,142 @@
-import { Container, Image, Input, Text } from "@chakra-ui/react"
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   createFileRoute,
   Link as RouterLink,
   redirect,
-} from "@tanstack/react-router"
-import { type SubmitHandler, useForm } from "react-hook-form"
-import { FiLock, FiMail } from "react-icons/fi"
+} from '@tanstack/react-router';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
-import type { Body_login_login_access_token as AccessToken } from "@/client"
-import { Button } from "@/components/ui/button"
-import { Field } from "@/components/ui/field"
-import { InputGroup } from "@/components/ui/input-group"
-import { PasswordInput } from "@/components/ui/password-input"
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
-import Logo from "/assets/images/fastapi-logo.svg"
-import { emailPattern, passwordRules } from "../utils"
+import type { Body_login_login_access_token as AccessToken } from '@/client';
+import { AuthLayout } from '@/components/Common/AuthLayout';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { LoadingButton } from '@/components/ui/loading-button';
+import { PasswordInput } from '@/components/ui/password-input';
+import useAuth, { isLoggedIn } from '@/hooks/useAuth';
 
-export const Route = createFileRoute("/login")({
+const formSchema = z.object({
+  username: z.email(),
+  password: z
+    .string()
+    .min(1, { message: 'Password is required' })
+    .min(8, { message: 'Password must be at least 8 characters' }),
+}) satisfies z.ZodType<AccessToken>;
+
+type FormData = z.infer<typeof formSchema>;
+
+export const Route = createFileRoute('/login')({
   component: Login,
   beforeLoad: async () => {
     if (isLoggedIn()) {
       throw redirect({
-        to: "/",
-      })
+        to: '/',
+      });
     }
   },
-})
+  head: () => ({
+    meta: [
+      {
+        title: 'Log In - FastAPI Template',
+      },
+    ],
+  }),
+});
 
 function Login() {
-  const { loginMutation, error, resetError } = useAuth()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<AccessToken>({
-    mode: "onBlur",
-    criteriaMode: "all",
+  const { loginMutation } = useAuth();
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    mode: 'onBlur',
+    criteriaMode: 'all',
     defaultValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
     },
-  })
+  });
 
-  const onSubmit: SubmitHandler<AccessToken> = async (data) => {
-    if (isSubmitting) return
-
-    resetError()
-
-    try {
-      await loginMutation.mutateAsync(data)
-    } catch {
-      // error is handled by useAuth hook
-    }
-  }
+  const onSubmit = (data: FormData) => {
+    if (loginMutation.isPending) return;
+    loginMutation.mutate(data);
+  };
 
   return (
-    <Container
-      as="form"
-      onSubmit={handleSubmit(onSubmit)}
-      h="100vh"
-      maxW="sm"
-      alignItems="stretch"
-      justifyContent="center"
-      gap={4}
-      centerContent
-    >
-      <Image
-        src={Logo}
-        alt="FastAPI logo"
-        height="auto"
-        maxW="2xs"
-        alignSelf="center"
-        mb={4}
-      />
-      <Field
-        invalid={!!errors.username}
-        errorText={errors.username?.message || !!error}
-      >
-        <InputGroup w="100%" startElement={<FiMail />}>
-          <Input
-            {...register("username", {
-              required: "Username is required",
-              pattern: emailPattern,
-            })}
-            placeholder="Email"
-            type="email"
-          />
-        </InputGroup>
-      </Field>
-      <PasswordInput
-        type="password"
-        startElement={<FiLock />}
-        {...register("password", passwordRules())}
-        placeholder="Password"
-        errors={errors}
-      />
-      <RouterLink to="/recover-password" className="main-link">
-        Forgot Password?
-      </RouterLink>
-      <Button variant="solid" type="submit" loading={isSubmitting} size="md">
-        Log In
-      </Button>
-      <Text>
-        Don't have an account?{" "}
-        <RouterLink to="/signup" className="main-link">
-          Sign Up
-        </RouterLink>
-      </Text>
-    </Container>
-  )
+    <AuthLayout>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='flex flex-col gap-6'
+        >
+          <div className='flex flex-col items-center gap-2 text-center'>
+            <h1 className='text-2xl font-bold'>Login to your account</h1>
+          </div>
+
+          <div className='grid gap-4'>
+            <FormField
+              control={form.control}
+              name='username'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      data-testid='email-input'
+                      placeholder='user@example.com'
+                      type='email'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className='text-xs' />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='password'
+              render={({ field }) => (
+                <FormItem>
+                  <div className='flex items-center'>
+                    <FormLabel>Password</FormLabel>
+                    <RouterLink
+                      to='/recover-password'
+                      className='ml-auto text-sm underline-offset-4 hover:underline'
+                    >
+                      Forgot your password?
+                    </RouterLink>
+                  </div>
+                  <FormControl>
+                    <PasswordInput
+                      data-testid='password-input'
+                      placeholder='Password'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className='text-xs' />
+                </FormItem>
+              )}
+            />
+
+            <LoadingButton type='submit' loading={loginMutation.isPending}>
+              Log In
+            </LoadingButton>
+          </div>
+
+          <div className='text-center text-sm'>
+            Don't have an account yet?{' '}
+            <RouterLink to='/signup' className='underline underline-offset-4'>
+              Sign up
+            </RouterLink>
+          </div>
+        </form>
+      </Form>
+    </AuthLayout>
+  );
 }
