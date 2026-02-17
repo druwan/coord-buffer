@@ -1,11 +1,11 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { Check, Copy } from 'lucide-react';
 
-import type { ItemPublic } from '@/client';
+import type { PolygonPublic } from '@/client';
 import { Button } from '@/components/ui/button';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 import { cn } from '@/lib/utils';
-import { ItemActionsMenu } from './ItemActionsMenu';
+import { PolygonActionsMenu } from './PolygonActionsMenu';
 
 function CopyId({ id }: { id: string }) {
   const [copiedText, copy] = useCopyToClipboard();
@@ -31,7 +31,7 @@ function CopyId({ id }: { id: string }) {
   );
 }
 
-export const columns: ColumnDef<ItemPublic>[] = [
+export const columns: ColumnDef<PolygonPublic>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
@@ -39,24 +39,24 @@ export const columns: ColumnDef<ItemPublic>[] = [
   },
   {
     accessorKey: 'title',
-    header: 'Title',
+    header: 'Polygon',
     cell: ({ row }) => (
       <span className='font-medium'>{row.original.title}</span>
     ),
   },
   {
-    accessorKey: 'description',
-    header: 'Description',
+    accessorKey: 'buffer_size',
+    header: 'Buffer Size',
     cell: ({ row }) => {
-      const description = row.original.description;
+      const buffer_size = row.original.buffer_size;
       return (
         <span
           className={cn(
             'max-w-xs truncate block text-muted-foreground',
-            !description && 'italic',
+            !buffer_size && 'italic',
           )}
         >
-          {description || 'No description'}
+          {buffer_size || 'No description'}
         </span>
       );
     },
@@ -66,7 +66,7 @@ export const columns: ColumnDef<ItemPublic>[] = [
     header: () => <span className='sr-only'>Actions</span>,
     cell: ({ row }) => (
       <div className='flex justify-end'>
-        <ItemActionsMenu item={row.original} />
+        <PolygonActionsMenu polygon={row.original} />
       </div>
     ),
   },

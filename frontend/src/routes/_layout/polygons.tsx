@@ -1,169 +1,75 @@
-import {
-  Box,
-  Container,
-  EmptyState,
-  Flex,
-  Heading,
-  Table,
-  VStack,
-} from "@chakra-ui/react"
-import { useQuery } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
-import { FiSearch } from "react-icons/fi"
-import { z } from "zod"
-import { PolygonsService } from "@/client"
-import { PolygonActionsMenu } from "@/components/Common/PolygonActionsMenu"
-import { PolygonMap } from "@/components/Common/PolygonMap"
-import PendingPolygons from "@/components/Pending/PendingPolygons"
-import AddPolygon from "@/components/Polygons/AddPolygon"
-import {
-  PaginationItems,
-  PaginationNextTrigger,
-  PaginationPrevTrigger,
-  PaginationRoot,
-} from "@/components/ui/pagination"
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { createFileRoute } from '@tanstack/react-router';
+import { Suspense } from 'react';
 
-const polygonsSearchSchema = z.object({
-  page: z.number().catch(1),
-})
+import { PolygonsService } from '@/client';
 
-const PER_PAGE = 5
+import PendingPolygons from '@/components/Pending/PendingPolygons';
+import AddPolygon from '@/components/Polygons/AddPolygon';
+import { columns } from '@/components/Polygons/columns';
+import { Search } from 'lucide-react';
+import { DataTable } from '@/components/Common/DataTable';
 
-function getPolygonsQueryOptions({ page }: { page: number }) {
+function getPolygonsQueryOptions() {
   return {
-    queryFn: () =>
-      PolygonsService.readPolygons({
-        skip: (page - 1) * PER_PAGE,
-        limit: PER_PAGE,
-      }),
-    queryKey: ["polygons", { page }],
-  }
+    queryFn: () => PolygonsService.readPolygons({ skip: 0, limit: 100 }),
+    queryKey: ['polygons'],
+  };
 }
 
-export const Route = createFileRoute("/_layout/polygons")({
+export const Route = createFileRoute('/_layout/polygons')({
   component: Polygons,
-  validateSearch: (search) => polygonsSearchSchema.parse(search),
-})
+  head: () => ({
+    meta: [
+      {
+        title: 'Polygons',
+      },
+    ],
+  }),
+});
+
+function PolygonsTableContent() {
+  const { data: polygons } = useSuspenseQuery(getPolygonsQueryOptions());
+
+  if (polygons.data.length === 0) {
+    return (
+      <div className='flex flex-col items-center justify-center text-center py-12'>
+        <div className='rounded-full bg-muted p-4 mb-4'>
+          <Search className='h-8 w-8 text-muted-foreground' />
+        </div>
+        <h3 className='text-lg font-semibold'>
+          You have no buffered polygons yet
+        </h3>
+        <p className='text-muted-foreground'>
+          Create a new buffer to get started
+        </p>
+      </div>
+    );
+  }
+  return <DataTable columns={columns} data={polygons.data} />;
+}
 
 function PolygonsTable() {
-  const navigate = useNavigate({ from: Route.fullPath })
-  const { page } = Route.useSearch()
-
-  const { data, isLoading, isPlaceholderData } = useQuery({
-    ...getPolygonsQueryOptions({ page }),
-    placeholderData: (prevData) => prevData,
-  })
-
-  const setPage = (page: number) => {
-    navigate({
-      to: "/polygons",
-      search: (prev) => ({ ...prev, page }),
-    })
-  }
-
-  const polygons = data?.data?.slice(0, PER_PAGE) ?? []
-  const count = data?.count ?? 0
-
-  if (isLoading) {
-    return <PendingPolygons />
-  }
-
-  if (polygons.length === 0) {
-    return (
-      <EmptyState.Root>
-        <EmptyState.Content>
-          <EmptyState.Indicator>
-            <FiSearch />
-          </EmptyState.Indicator>
-          <VStack textAlign="center">
-            <EmptyState.Title>You don't have any polygons yet</EmptyState.Title>
-            <EmptyState.Description>
-              Add a new polygon to get started
-            </EmptyState.Description>
-          </VStack>
-        </EmptyState.Content>
-      </EmptyState.Root>
-    )
-  }
-
   return (
-    <>
-      <Table.Root size={{ base: "sm", md: "md" }}>
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Title</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Buffer Size</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {polygons?.map((polygon) => (
-            <Table.Row key={polygon.id} opacity={isPlaceholderData ? 0.5 : 1}>
-              <Table.Cell truncate maxW="sm">
-                {polygon.id}
-              </Table.Cell>
-              <Table.Cell truncate maxW="sm">
-                {polygon.title}
-              </Table.Cell>
-              <Table.Cell
-                color={!polygon.buffer_size ? "gray" : "inherit"}
-                truncate
-                maxW="30%"
-              >
-                {polygon.buffer_size || "N/A"}
-              </Table.Cell>
-              <Table.Cell>
-                <PolygonActionsMenu polygon={polygon} />
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table.Root>
-      <Flex justifyContent="flex-end" mt={4}>
-        <PaginationRoot
-          count={count}
-          pageSize={PER_PAGE}
-          onPageChange={({ page }) => setPage(page)}
-        >
-          <Flex>
-            <PaginationPrevTrigger />
-            <PaginationItems />
-            <PaginationNextTrigger />
-          </Flex>
-        </PaginationRoot>
-      </Flex>
-    </>
-  )
+    <Suspense fallback={<PendingPolygons />}>
+      <PolygonsTableContent />
+    </Suspense>
+  );
 }
 
 function Polygons() {
-  const [selectedPolygon, setSelectedPolygon] = useState<any | null>(null)
   return (
-    <Container maxW="6xl" py={12}>
-      <Heading size="lg" mb={6}>
-        Polygons Management
-      </Heading>
-
-      {/* Map Section */}
-      <Box
-        w="100%"
-        h="500px"
-        mb={8}
-        borderRadius="lg"
-        overflow="hidden"
-        shadow="md"
-        position="relative"
-      >
-        <PolygonMap polygon={selectedPolygon} />
-      </Box>
-
-      {/* Add Polygon + Table */}
-      <VStack align="stretch">
-        <AddPolygon onPolygonSelect={setSelectedPolygon} />
-        <PolygonsTable />
-      </VStack>
-    </Container>
-  )
+    <div className='flex flex-col gap-6'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h1 className='text-2xl font-bold tracking-tight'>Polygons</h1>
+          <p className='text-muted-foreground'>
+            Create and manage your polygons
+          </p>
+        </div>
+        <AddPolygon />
+      </div>
+      <PolygonsTable />
+    </div>
+  );
 }

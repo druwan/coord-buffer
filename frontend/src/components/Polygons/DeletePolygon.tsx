@@ -1,104 +1,94 @@
-import { Button, DialogTitle, Text } from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { FiTrash2 } from "react-icons/fi"
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
-import { PolygonsService } from "@/client"
+import { PolygonsService } from '@/client';
 import {
-  DialogActionTrigger,
-  DialogBody,
-  DialogCloseTrigger,
+  Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogRoot,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import useCustomToast from "@/hooks/useCustomToast"
+  DialogTitle,
+} from '@/components/ui/dialog';
+import useCustomToast from '@/hooks/useCustomToast';
+import { handleError } from '@/utils';
+import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { Trash2 } from 'lucide-react';
+import { Button } from '../ui/button';
+import { LoadingButton } from '../ui/loading-button';
 
-const DeletePolygon = ({ id }: { id: string }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const { showSuccessToast, showErrorToast } = useCustomToast()
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm()
+interface DeletePolygonProps {
+  id: string;
+  onSuccess: () => void;
+}
+
+const DeletePolygon = ({ id, onSuccess }: DeletePolygonProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
+  const { handleSubmit } = useForm();
 
   const deletePolygon = async (id: string) => {
-    await PolygonsService.deletePolygon({ id: id })
-  }
+    await PolygonsService.deletePolygon({ id: id });
+  };
 
   const mutation = useMutation({
     mutationFn: deletePolygon,
     onSuccess: () => {
-      showSuccessToast("The polygon was deleted successfully")
-      setIsOpen(false)
+      showSuccessToast('The polygon was deleted successfully');
+      setIsOpen(false);
+      onSuccess();
     },
-    onError: () => {
-      showErrorToast("An error occurred while deleting the polygon")
-    },
+    onError: handleError.bind(showErrorToast),
     onSettled: () => {
-      queryClient.invalidateQueries()
+      queryClient.invalidateQueries();
     },
-  })
+  });
 
   const onSubmit = async () => {
-    mutation.mutate(id)
-  }
+    mutation.mutate(id);
+  };
 
   return (
-    <DialogRoot
-      size={{ base: "xs", md: "md" }}
-      placement="center"
-      role="alertdialog"
-      open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
-    >
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" colorPalette="red">
-          <FiTrash2 fontSize="16px" />
-          Delete Polygon
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuItem
+        variant='destructive'
+        onSelect={(e) => e.preventDefault()}
+        onClick={() => setIsOpen(true)}
+      >
+        <Trash2 />
+        Delete Polygon
+      </DropdownMenuItem>
+      <DialogContent className='sm:max-w-md'>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogCloseTrigger />
           <DialogHeader>
             <DialogTitle>Delete Polygon</DialogTitle>
+            <DialogDescription>
+              This <em>buffered</em> polygon will be permanently deleted. Are
+              you sure?{' '}
+            </DialogDescription>
           </DialogHeader>
-          <DialogBody>
-            <Text mb={4}>
-              This polygon will be permanently deleted. Are you sure? You will
-              not be able to undo this action.
-            </Text>
-          </DialogBody>
 
-          <DialogFooter gap={2}>
-            <DialogActionTrigger asChild>
-              <Button
-                variant="subtle"
-                colorPalette="gray"
-                disabled={isSubmitting}
-              >
+          <DialogFooter className='mt-4'>
+            <DialogClose asChild>
+              <Button variant='outline' disabled={mutation.isPending}>
                 Cancel
               </Button>
-            </DialogActionTrigger>
-            <Button
-              variant="solid"
-              colorPalette="red"
-              type="submit"
-              loading={isSubmitting}
+            </DialogClose>
+            <LoadingButton
+              variant='destructive'
+              type='submit'
+              loading={mutation.isPending}
             >
               Delete
-            </Button>
+            </LoadingButton>
           </DialogFooter>
         </form>
       </DialogContent>
-    </DialogRoot>
-  )
-}
+    </Dialog>
+  );
+};
 
-export default DeletePolygon
+export default DeletePolygon;

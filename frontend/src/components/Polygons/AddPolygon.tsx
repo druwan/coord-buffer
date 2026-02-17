@@ -1,87 +1,97 @@
-import {
-  Button,
-  DialogActionTrigger,
-  DialogTitle,
-  Input,
-  NativeSelect,
-  Text,
-  VStack,
-} from "@chakra-ui/react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { type SubmitHandler, useForm } from "react-hook-form"
-import { FaPlus } from "react-icons/fa"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { type SubmitHandler, useForm } from 'react-hook-form';
 
-import { type PolygonCreate, PolygonsService } from "@/client"
-import type { ApiError } from "@/client/core/ApiError"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { type PolygonCreate, PolygonsService } from '@/client';
+
+import useCustomToast from '@/hooks/useCustomToast';
+import { handleError } from '@/utils';
 import {
-  DialogBody,
-  DialogCloseTrigger,
+  Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogRoot,
+  DialogTitle,
   DialogTrigger,
-} from "../ui/dialog"
-import { Field } from "../ui/field"
+} from '../ui/dialog';
 
-type PolygonForm = PolygonCreate & {
-  title: string
-  buffer_size: number
-  externalPolygon: number
-  coordinates?: string
-  positionindicator?: string
-}
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '../ui/button';
+import { Plus } from 'lucide-react';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../ui/form';
+import { Input } from '../ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { LoadingButton } from '../ui/loading-button';
+
+const formSchema = z.object({
+  externalPolygon: z.string().min(1, { message: 'Select a polygon' }),
+  buffer_size: z.number().min(0),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 type ExternalPolygon = {
-  msid: number
-  nameofarea: string
-  positionindicator?: string
-  geom?: string
-}
+  msid: number;
+  nameofarea: string;
+  positionindicator?: string;
+  geom?: string;
+};
 
-const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "")
+const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 const useExternalPolygons = () => {
   return useQuery({
-    queryKey: ["external-polygons"],
+    queryKey: ['external-polygons'],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/api/v1/aip-polygons/`)
-      if (!res.ok) throw new Error("Failed to fetch external polygons")
-      return res.json()
+      const res = await fetch(`${API_BASE}/api/v1/aip-polygons/`);
+      if (!res.ok) throw new Error('Failed to fetch external polygons');
+      return res.json();
     },
-  })
-}
+  });
+};
 
+// Takes an AIP_Polygon as input. We do not create any new polygons.
 const AddPolygon = ({
   onPolygonSelect,
 }: {
-  onPolygonSelect?: (poly: any) => void
+  onPolygonSelect?: (poly: any) => void;
 }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const { showSuccessToast } = useCustomToast()
-  const { data: externalPolygons, isLoading } = useExternalPolygons()
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isValid, isSubmitting },
-  } = useForm<PolygonForm>({
-    mode: "onBlur",
-    criteriaMode: "all",
+  const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
+
+  const { data: externalPolygons } = useExternalPolygons();
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    mode: 'onBlur',
+    criteriaMode: 'all',
     defaultValues: {
-      title: "",
+      externalPolygon: '',
       buffer_size: 0,
     },
-  })
+  });
 
   const mutation = useMutation({
     mutationFn: (data: PolygonCreate) =>
       PolygonsService.createPolygon({ requestBody: data }),
     onSuccess: (newPoly) => {
-      showSuccessToast("Polygon created successfully.")
+      showSuccessToast('Polygon created successfully.');
       onPolygonSelect?.({
         id: newPoly.id,
         title: newPoly.title,
@@ -89,132 +99,117 @@ const AddPolygon = ({
         positionindicator: newPoly.positionindicator,
         original_geometry: newPoly.original_geometry,
         buffered_geometry: newPoly.buffered_geometry,
-      })
-      reset()
-      setIsOpen(false)
+      });
+      form.reset();
+      setIsOpen(false);
     },
-    onError: (err: ApiError) => {
-      handleError(err)
-    },
+    onError: handleError.bind(showErrorToast),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["polygons"] })
+      queryClient.invalidateQueries({ queryKey: ['polygons'] });
     },
-  })
+  });
 
-  const onSubmit: SubmitHandler<PolygonForm> = (data) => {
-    const selectedPolygon = externalPolygons.find(
+  const onSubmit: SubmitHandler<FormData> = (data) => {
+    const selectedPolygon = externalPolygons?.find(
       (p: ExternalPolygon) => p.msid === Number(data.externalPolygon),
-    )
-    if (!selectedPolygon) return
-    onPolygonSelect?.({
-      id: selectedPolygon.msid,
-      title: selectedPolygon.nameofarea,
-      positionindicator: selectedPolygon.posittionindicator,
-      original_geometry: selectedPolygon.geom,
-      buffered_geometry: null,
-    })
-    console.log(`Selected Polygon: ${Object.keys(selectedPolygon)}`)
-    console.log(`Selected Polygon: ${selectedPolygon}`)
+    );
+
+    if (!selectedPolygon) return;
 
     const payload: PolygonCreate = {
       title: selectedPolygon.nameofarea,
-      buffer_size: Number(data.buffer_size),
-      coordinates: selectedPolygon.geom!,
-      positionindicator: selectedPolygon.positionindicator || "",
-    }
-    console.log(payload)
-    mutation.mutate(payload)
-  }
+      buffer_size: data.buffer_size,
+      coordinates: JSON.stringify(selectedPolygon.geom),
+      positionindicator: selectedPolygon.positionindicator || '',
+    };
+
+    mutation.mutate(payload);
+  };
 
   return (
-    <DialogRoot
-      size={{ base: "xs", md: "md" }}
-      placement="center"
-      open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
-    >
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button value="add-item" my={4}>
-          <FaPlus fontSize="16px" />
+        <Button className='my-4'>
+          <Plus className='mr-2' />
           Add Polygon
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogHeader>
-            <DialogTitle>Add Polygon</DialogTitle>
-          </DialogHeader>
-          <DialogBody>
-            <Text mb={4}>Fill in the details to add a new polygon.</Text>
-            <VStack gap={4}>
-              <Field
-                required
-                invalid={!!errors.externalPolygon}
-                errorText={errors.externalPolygon?.message}
-                label="Select Polygon"
-              >
-                {isLoading ? (
-                  <Text>Loading polygons...</Text>
-                ) : (
-                  <NativeSelect.Root>
-                    <NativeSelect.Field
-                      {...register("externalPolygon")}
-                      onChange={(e) => {
-                        const selected = externalPolygons.find(
-                          (p: ExternalPolygon) =>
-                            p.msid === Number(e.target.value),
-                        )
-                        if (selected) onPolygonSelect?.(selected)
-                      }}
-                      placeholder="Choose a polygon"
-                    >
-                      {externalPolygons?.slice().map((poly: any) => (
-                        <option key={poly.msid} value={poly.msid}>
-                          {poly.nameofarea}
-                        </option>
-                      ))}
-                    </NativeSelect.Field>
-                  </NativeSelect.Root>
+      <DialogContent className='sm:max-w-md'>
+        <DialogHeader>
+          <DialogTitle>Add Polygon</DialogTitle>
+          <DialogDescription>
+            Fill in buffer size of new Polygon
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className='grid gap-4 py-4'>
+              <FormField
+                control={form.control}
+                name='externalPolygon'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Polygon</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className='w-full max-w-64'>
+                          <SelectValue placeholder='Select a TMA' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {externalPolygons?.map((poly: ExternalPolygon) => (
+                            <SelectItem
+                              key={poly.msid}
+                              value={String(poly.msid)}
+                            >
+                              {poly.nameofarea} | {poly.positionindicator}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Field>
-              <Field
-                invalid={!!errors.buffer_size}
-                errorText={errors.buffer_size?.message}
-                label="buffer_Size"
-              >
-                <Input
-                  {...register("buffer_size")}
-                  placeholder="Buffer Size in Nautical miles"
-                  type="number"
-                />
-              </Field>
-            </VStack>
-          </DialogBody>
+              />
+              <FormField
+                control={form.control}
+                name='buffer_size'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Buffer Size <em>(Nm)</em>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='Buffer Size (Nm)'
+                        type='number'
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <DialogFooter gap={2}>
-            <DialogActionTrigger asChild>
-              <Button
-                variant="subtle"
-                colorPalette="gray"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-            </DialogActionTrigger>
-            <Button
-              variant="solid"
-              type="submit"
-              disabled={!isValid}
-              loading={isSubmitting}
-            >
-              Save
-            </Button>
-          </DialogFooter>
-        </form>
-        <DialogCloseTrigger />
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant='outline' disabled={mutation.isPending}>
+                  Cancel
+                </Button>
+              </DialogClose>
+              <LoadingButton type='submit' loading={mutation.isPending}>
+                Save
+              </LoadingButton>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
-    </DialogRoot>
-  )
-}
-
-export default AddPolygon
+    </Dialog>
+  );
+};
+export default AddPolygon;

@@ -1,149 +1,143 @@
-import {
-  Button,
-  ButtonGroup,
-  DialogActionTrigger,
-  Input,
-  Text,
-  VStack,
-} from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
-import { type SubmitHandler, useForm } from "react-hook-form"
-import { FaExchangeAlt } from "react-icons/fa"
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
-import { type ApiError, type PolygonPublic, PolygonsService } from "@/client"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { type PolygonPublic, PolygonsService } from '@/client';
+import useCustomToast from '@/hooks/useCustomToast';
+import { handleError } from '@/utils';
+import { z } from 'zod';
 import {
-  DialogBody,
-  DialogCloseTrigger,
+  Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogRoot,
   DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog"
-import { Field } from "../ui/field"
+} from '../ui/dialog';
+import { DropdownMenuItem } from '../ui/dropdown-menu';
+import { Pencil } from 'lucide-react';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../ui/form';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { LoadingButton } from '../ui/loading-button';
+
+const formSchema = z.object({
+  title: z.string().min(1, { message: 'Title is required' }),
+  buffer_size: z.number().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 interface EditPolygonProps {
-  polygon: PolygonPublic
+  polygon: PolygonPublic;
+  onSuccess: () => void;
 }
 
-interface PolygonUpdateForm {
-  title: string
-  buffer_size?: number
-}
+const EditPolygon = ({ polygon, onSuccess }: EditPolygonProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
-const EditPolygon = ({ polygon }: EditPolygonProps) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const queryClient = useQueryClient()
-  const { showSuccessToast } = useCustomToast()
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<PolygonUpdateForm>({
-    mode: "onBlur",
-    criteriaMode: "all",
+  const form = useForm<FormData>({
+    mode: 'onBlur',
+    criteriaMode: 'all',
     defaultValues: {
-      ...polygon,
-      buffer_size: polygon.buffer_size ?? 0,
+      title: polygon.title,
+      buffer_size: polygon.buffer_size ?? undefined,
     },
-  })
+  });
 
   const mutation = useMutation({
-    mutationFn: (data: PolygonUpdateForm) =>
+    mutationFn: (data: FormData) =>
       PolygonsService.updatePolygon({ id: polygon.id, requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("Polygon updated successfully.")
-      reset()
-      setIsOpen(false)
+      showSuccessToast('Polygon updated successfully.');
+      setIsOpen(false);
+      onSuccess();
     },
-    onError: (err: ApiError) => {
-      handleError(err)
-    },
+    onError: handleError.bind(showErrorToast),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["polygons"] })
+      queryClient.invalidateQueries({ queryKey: ['polygons'] });
     },
-  })
+  });
 
-  const onSubmit: SubmitHandler<PolygonUpdateForm> = async (data) => {
-    mutation.mutate(data)
-  }
+  const onSubmit = (data: FormData) => {
+    mutation.mutate(data);
+  };
 
   return (
-    <DialogRoot
-      size={{ base: "xs", md: "md" }}
-      placement="center"
-      open={isOpen}
-      onOpenChange={({ open }) => setIsOpen(open)}
-    >
-      <DialogTrigger asChild>
-        <Button variant="ghost">
-          <FaExchangeAlt fontSize="16px" />
-          Edit Polygon
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogHeader>
-            <DialogTitle>Edit Polygon</DialogTitle>
-          </DialogHeader>
-          <DialogBody>
-            <Text mb={4}>Update the polygon details below.</Text>
-            <VStack gap={4}>
-              <Field
-                required
-                invalid={!!errors.title}
-                errorText={errors.title?.message}
-                label="Title"
-              >
-                <Input
-                  {...register("title", {
-                    required: "Title is required",
-                  })}
-                  placeholder="Title"
-                  type="text"
-                />
-              </Field>
-
-              <Field
-                invalid={!!errors.buffer_size}
-                errorText={errors.buffer_size?.message}
-                label="buffer_size"
-              >
-                <Input
-                  {...register("buffer_size")}
-                  placeholder="Buffer size in Nautical miles"
-                  type="number"
-                />
-              </Field>
-            </VStack>
-          </DialogBody>
-
-          <DialogFooter gap={2}>
-            <ButtonGroup>
-              <DialogActionTrigger asChild>
-                <Button
-                  variant="subtle"
-                  colorPalette="gray"
-                  disabled={isSubmitting}
-                >
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuItem
+        onSelect={(e) => e.preventDefault()}
+        onClick={() => setIsOpen(true)}
+      >
+        <Pencil />
+        Edit Polygon
+      </DropdownMenuItem>
+      <DialogContent className='sm:max-w-md'>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader>
+              <DialogTitle>Edit Polygon</DialogTitle>
+              <DialogDescription>Update the polygon</DialogDescription>
+            </DialogHeader>
+            <div className='grid gap-4 py-4'>
+              <FormField
+                control={form.control}
+                name='title'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Title <span className='text-destructive'>*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder='Title' type='text' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='buffer_size'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Buffer Size (Nm)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder='Buffer_size'
+                        type='number'
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose>
+                <Button variant='outline' disabled={mutation.isPending}>
                   Cancel
                 </Button>
-              </DialogActionTrigger>
-              <Button variant="solid" type="submit" loading={isSubmitting}>
+              </DialogClose>
+              <LoadingButton type='submit' loading={mutation.isPending}>
                 Save
-              </Button>
-            </ButtonGroup>
-          </DialogFooter>
-        </form>
-        <DialogCloseTrigger />
+              </LoadingButton>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
-    </DialogRoot>
-  )
-}
+    </Dialog>
+  );
+};
 
-export default EditPolygon
+export default EditPolygon;
