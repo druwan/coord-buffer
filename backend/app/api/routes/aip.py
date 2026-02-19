@@ -2,41 +2,43 @@ import json
 from typing import Any
 
 from fastapi import APIRouter
-from sqlalchemy import collate, func
-from sqlmodel import select
+from sqlalchemy import text
 
 from app.api.deps import ExternalSessionDep
-from app.models import ExternalPolygons, ExternalPolygonsGeoJSON
+from app.models import AipPolygonRead
 
-router = APIRouter(prefix="/aip-polygons", tags=["aip-polygons"])
+router = APIRouter(prefix="/aip", tags=["aip"])
 
 
-@router.get("/", response_model=list[ExternalPolygonsGeoJSON])
-def read_external_polygons(
+@router.get("/", response_model=list[AipPolygonRead])
+def read_external_aip_polygons(
     *, session: ExternalSessionDep, skip: int = 0, limit: int = 100
 ) -> Any:
     """
     Retrieve polygons from aip_data
     """
-    statement = (
-        select(
-            ExternalPolygons.msid,
-            ExternalPolygons.nameofarea,
-            ExternalPolygons.positionindicator,
-            func.ST_AsGeoJSON(ExternalPolygons.geom).label("geom"),
-        )
-        .where(ExternalPolygons.typeofarea == "TMAW")
-        .order_by(collate(ExternalPolygons.nameofarea, "sv-SE-x-icu"))  # type: ignore
-        .offset(skip)
-        .limit(limit)
-    )
-    result = session.exec(statement).all()
+
+    statement = text("""
+        SELECT
+            msid,
+            nameofarea,
+            positionindicator,
+            ST_AsGeoJSON(geom) AS geom
+        FROM aip_data
+        WHERE typeofarea = 'TMAW'
+        ORDER BY nameofarea COLLATE "sv-SE-x-icu"
+        OFFSET :skip
+        LIMIT :limit
+    """)
+
+    result = session.execute(statement, {"skip": skip, "limit": limit}).all()
+
     polygons = [
-        ExternalPolygonsGeoJSON(
-            msid=row[0],
-            nameofarea=row[1],
-            positionindicator=row[2],
-            geom=json.loads(row[3]),
+        AipPolygonRead(
+            msid=row.msid,
+            nameofarea=row.nameofarea,
+            positionindicator=row.positionindicator,
+            geom=json.loads(row.geom) if row.geom else None,
         )
         for row in result
     ]

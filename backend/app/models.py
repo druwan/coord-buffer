@@ -1,10 +1,9 @@
-from typing import Optional
 import uuid
 from datetime import datetime, timezone
 
 from pydantic import EmailStr
-from sqlalchemy import DateTime, String
-from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlalchemy import JSON, Column, DateTime
+from sqlmodel import Field, Relationship, SQLModel
 
 
 def get_datetime_utc() -> datetime:
@@ -32,7 +31,7 @@ class UserRegister(SQLModel):
 
 # Properties to receive via API on update, all are optional
 class UserUpdate(UserBase):
-    email: EmailStr | None = Field(default=None, max_length=255)  # type: ignore
+    email: EmailStr | None = Field(default=None, max_length=255)
     password: str | None = Field(default=None, min_length=8, max_length=128)
 
 
@@ -84,7 +83,7 @@ class ItemCreate(ItemBase):
 
 # Properties to receive on item update
 class ItemUpdate(ItemBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
+    title: str | None = Field(default=None, min_length=1, max_length=255)
 
 
 # Database model, database table inferred from class name
@@ -135,37 +134,41 @@ class NewPassword(SQLModel):
 
 # Shared properties
 class PolygonBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    buffer_size: int = Field(default=0, ge=0, lt=50)
-    positionindicator: str | None = Field(default=None, min_length=4, max_length=4)
-    original_geometry: str | None = Field(default=None)
-    buffered_geometry: str | None = Field(default=None)
+    title: str
+    nameofarea: str
+    positionindicator: str
+    buffer_size: int = Field(ge=1, lt=50)
+    original_geometry: dict | None = Field(default=None, sa_column=Column(JSON))
+    buffered_geometry: dict | None = Field(default=None, sa_column=Column(JSON))
 
 
 # Properties to receive on polygon creation
-class PolygonCreate(PolygonBase):
-    coordinates: str
+class PolygonCreate(SQLModel):
+    msid: int
+    buffer_size: int = Field(ge=1, lt=50)
 
 
 # Properties to receive on polygon update
-class PolygonUpdate(PolygonBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
-    buffer_size: int = Field(default=0, lt=50)
+class PolygonUpdate(SQLModel):
+    buffer_size: int = Field(ge=1, lt=50)
 
 
 # Database model, database table inferred from class name
 class Polygon(PolygonBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc, sa_type=DateTime(timezone=True)
+    )
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
     owner: User | None = Relationship(back_populates="polygons")
 
 
-# Properties to return via API, id is always required
 class PolygonPublic(PolygonBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    created_at: datetime | None = None
 
 
 class PolygonsPublic(SQLModel):
@@ -173,17 +176,7 @@ class PolygonsPublic(SQLModel):
     count: int
 
 
-# AIP
-class ExternalPolygons(SQLModel, table=True):
-    __tablename__: str = "aip_data"  # type: ignore
-    msid: int = Field(primary_key=True)
-    nameofarea: str = Field(sa_column=Column(String, nullable=False))
-    positionindicator: str
-    geom: str
-    typeofarea: str
-
-
-class ExternalPolygonsGeoJSON(SQLModel):
+class AipPolygonRead(SQLModel):
     msid: int
     nameofarea: str
     positionindicator: str

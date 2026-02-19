@@ -1,29 +1,27 @@
-import json
-
 import geopandas as gpd
 from shapely.geometry import mapping, shape
 
-BUFFER_MULTIPLIER = 1652
+BUFFER_MULTIPLIER = 1852
 DEFAULT_EPSG = 4326
 METRIC_EPSG = 3006
 
 
-def buffer_polygon(geojson_str: str, buffer_nm: float) -> str:
+def buffer_polygon(geojson: dict, buffer_nm: float) -> dict:
     """ "
     Buffer a polygon GeoJSON geometry by a distance in nautical miles.
     Returns the buffered geometry as a GeoJSON string.
     """
-    geojson = json.loads(geojson_str)
+
+    if not geojson:
+        raise ValueError("GeoJSON cannot be empty")
 
     # Convert to shapely
-    if geojson.get("type") == "FeatureCollection":
-        geom = shape(geojson["features"][0]["geometry"])
-    elif geojson.get("type") == "Feature":
+    if geojson["type"] == "Feature":
         geom = shape(geojson["geometry"])
-    elif geojson.get("type") in ("Polygon", "MultiPolygon"):
-        geom = shape(geojson)
+    elif geojson["type"] == "FeatureCollection":
+        geom = shape(geojson["features"][0]["geometry"])
     else:
-        raise ValueError(f"Unsupported GeoJSON type: {geojson.get('type')}")
+        geom = shape(geojson)
 
     gdf = gpd.GeoDataFrame(geometry=[geom], crs=f"EPSG:{DEFAULT_EPSG}")
 
@@ -32,8 +30,7 @@ def buffer_polygon(geojson_str: str, buffer_nm: float) -> str:
     buffer_m = buffer_nm * BUFFER_MULTIPLIER
     buffered_geom = gdf_metric.buffer(distance=buffer_m)
 
-    buffered_wgs84 = gpd.GeoDataFrame(geometry=buffered_geom, crs=f"EPSG:{METRIC_EPSG}")
-    buffered_wgs84 = buffered_wgs84.to_crs(epsg=DEFAULT_EPSG)
-
-    buffered_geojson = json.dumps(mapping(buffered_wgs84.geometry.iloc[0]))
-    return buffered_geojson
+    buffered_wgs84 = gpd.GeoDataFrame(
+        geometry=buffered_geom, crs=f"EPSG:{METRIC_EPSG}"
+    ).to_crs(epsg=DEFAULT_EPSG)
+    return mapping(buffered_wgs84.geometry.iloc[0])

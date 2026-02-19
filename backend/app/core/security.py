@@ -34,4 +34,3 @@ def verify_password(
 
 def get_password_hash(password: str) -> str:
     return password_hash.hash(password)
-
