@@ -111,6 +111,7 @@ def create_polygon(
         {
             "title": result.nameofarea,
             "nameofarea": result.nameofarea,
+            "msid": polygon_in.msid,
             "positionindicator": result.positionindicator,
             "original_geometry": original_geometry,
             "buffer_size": polygon_in.buffer_size,
