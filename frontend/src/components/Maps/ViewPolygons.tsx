@@ -38,19 +38,6 @@ export const ViewPolygons = ({
   const layers = useMemo(() => {
     const colorMap = createColorScale(externalPolygons)
 
-    const externalLayers = externalPolygons.map((p) => {
-      const hue = colorMap.get(p.msid) ?? 0
-      return {
-        id: `external-${p.msid}`,
-        geometry: p.geom,
-        color: `hsl(${hue}, 100%, 50%)`,
-        opacity: 1,
-        fillOpacity: 0.3,
-        meta: {
-          name: p.nameofarea,
-        },
-      }
-    })
 
     const userLayers = userPolygons.map((p) => {
       const baseHue = colorMap.get(p.msid) ?? 0
@@ -61,6 +48,8 @@ export const ViewPolygons = ({
         color: `hsl(${shiftedHue}, 100%, 50%)`,
         opacity: showBuffered ? 1 : 0,
         fillOpacity: showBuffered ? 0.2 : 0,
+        weight: 3,
+        dashArray: "6 6",
         meta: {
           name: p.nameofarea,
           bufferSize: p.buffer_size,
@@ -68,8 +57,22 @@ export const ViewPolygons = ({
       }
     })
 
-    return [...externalLayers, ...userLayers]
-  }, [externalPolygons, userPolygons, showBuffered])
+    const externalLayers = externalPolygons.map((p) => {
+      const hue = colorMap.get(p.msid) ?? 0
+      return {
+        id: `external-${p.msid}`,
+        geometry: p.geom,
+        color: `hsl(${hue}, 100%, 50%)`,
+        opacity: 1,
+        fillOpacity: 0.3,
+        weight: 2,
+        meta: {
+          name: p.nameofarea,
+        },
+      }
+    })
+    return [...userLayers, ...externalLayers]
+  }, [userPolygons, externalPolygons, showBuffered])
 
   return (
     <div className="relative h-full w-full">

@@ -26,24 +26,27 @@ export const ViewPolygon = ({ polygon }: { polygon: PolygonPublic }) => {
 
     return [
       {
+        id: `buff-${polygon.id}`,
+        geometry: polygon.buffered_geometry,
+        color: `hsl(${(baseHue + 45) % 360}, 100%, 45%)`,
+        opacity: 0.9,
+        fillOpacity: 0.15,
+        weight: 3,
+        dashArray: "6 6",
+        meta: {
+          name: polygon.nameofarea,
+          bufferSize: polygon.buffer_size,
+        },
+      },
+      {
         id: `orig-${polygon.id}`,
         geometry: polygon.original_geometry,
         color: `hsl(${baseHue}, 100%, 50%)`,
         opacity: 1,
-        fillOpacity: 0.3,
+        fillOpacity: 0.35,
+        weight: 2,
         meta: {
           name: polygon.nameofarea,
-        },
-      },
-      {
-        id: `buff-${polygon.id}`,
-        geometry: polygon.buffered_geometry,
-        color: `hsl(${(baseHue + 45) % 360}, 100%, 50%)`,
-        opacity: 1,
-        fillOpacity: 0.2,
-        meta: {
-          name: polygon.nameofarea,
-          bufferSize: polygon.buffer_size,
         },
       },
     ]

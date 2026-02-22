@@ -11,6 +11,8 @@ type PolygonLayer = {
   color: string
   opacity?: number
   fillOpacity?: number
+  weight: number
+  dashArray?: string
   meta: {
     name: string
     bufferSize?: number
@@ -69,6 +71,8 @@ export const BasePolygonMap = ({
             color: poly.color,
             opacity: poly.opacity ?? 1,
             fillOpacity: poly.fillOpacity ?? 0.3,
+            weight: poly.weight ?? 2,
+            dashArray: poly.dashArray,
           }}
           onEachFeature={(_, layer) => {
             layer.bindTooltip(createTooltipContent(poly.meta), {
