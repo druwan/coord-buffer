@@ -68,7 +68,11 @@ export const ViewPolygons = ({
     <div className="relative h-full w-full">
       <BasePolygonMap polygons={layers} autoFit />
       <div className="flex items-center space-x-2 absolute top-4 right-4 z-1000 bg-background/5 backdrop-blur rounded-lg">
-        <Switch id="show-buffered" checked={showBuffered} onCheckedChange={setShowBuffered} />
+        <Switch
+          id="show-buffered"
+          checked={showBuffered}
+          onCheckedChange={setShowBuffered}
+        />
         <Label htmlFor="show-buffered">Show User Polygons</Label>
       </div>
     </div>
