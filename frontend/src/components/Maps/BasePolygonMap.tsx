@@ -11,6 +11,10 @@ type PolygonLayer = {
   color: string
   opacity?: number
   fillOpacity?: number
+  meta: {
+    name: string
+    bufferSize?: number
+  }
 }
 
 type BasePolygonMapProps = {
@@ -33,6 +37,19 @@ const AutoFit = ({ polygons }: { polygons: PolygonLayer[] }) => {
   return null
 }
 
+function createTooltipContent(meta: PolygonLayer["meta"]) {
+  const container = L.DomUtil.create("div")
+  const title = L.DomUtil.create(
+    "div",
+    "bg-background/5 backdrop-blur rounded-lg",
+    container,
+  )
+  title.textContent = meta.bufferSize
+    ? `${meta.name} + ${meta.bufferSize} Nm buffer`
+    : meta.name
+  return container
+}
+
 export const BasePolygonMap = ({
   polygons,
   autoFit = false,
@@ -52,7 +69,13 @@ export const BasePolygonMap = ({
             color: poly.color,
             opacity: poly.opacity ?? 1,
             fillOpacity: poly.fillOpacity ?? 0.3,
-            className: "transition-opacity duration-300",
+          }}
+          onEachFeature={(_, layer) => {
+            layer.bindTooltip(createTooltipContent(poly.meta), {
+              sticky: true,
+              direction: "top",
+              opacity: 0.95,
+            })
           }}
         />
       ))}

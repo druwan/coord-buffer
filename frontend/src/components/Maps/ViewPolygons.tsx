@@ -46,6 +46,9 @@ export const ViewPolygons = ({
         color: `hsl(${hue}, 100%, 50%)`,
         opacity: 1,
         fillOpacity: 0.3,
+        meta: {
+          name: p.nameofarea,
+        },
       }
     })
 
@@ -58,6 +61,10 @@ export const ViewPolygons = ({
         color: `hsl(${shiftedHue}, 100%, 50%)`,
         opacity: showBuffered ? 1 : 0,
         fillOpacity: showBuffered ? 0.2 : 0,
+        meta: {
+          name: p.nameofarea,
+          bufferSize: p.buffer_size,
+        },
       }
     })
 
