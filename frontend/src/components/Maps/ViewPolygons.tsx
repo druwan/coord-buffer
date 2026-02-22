@@ -1,7 +1,7 @@
-import { ToggleLeftIcon, ToggleRightIcon } from "lucide-react"
 import { useMemo, useState } from "react"
 import type { PolygonPublic } from "@/client"
-import { Toggle } from "../ui/toggle"
+import { Label } from "../ui/label"
+import { Switch } from "../ui/switch"
 import { BasePolygonMap } from "./BasePolygonMap"
 
 type ExternalPolygon = {
@@ -67,22 +67,9 @@ export const ViewPolygons = ({
   return (
     <div className="relative h-full w-full">
       <BasePolygonMap polygons={layers} autoFit />
-      <div className="absolute top-4 right-4 z-1000 bg-background/5 backdrop-blur rounded-lg">
-        <Toggle
-          pressed={showBuffered}
-          onPressedChange={setShowBuffered}
-          variant="outline"
-          style={{ color: "black" }}
-          size="lg"
-          className="gap-3 px-4 py-3"
-        >
-          Show User Polygons
-          {showBuffered ? (
-            <ToggleRightIcon className="h-6 w-6" style={{ color: "blue" }} />
-          ) : (
-            <ToggleLeftIcon size={48} style={{ color: "red" }} />
-          )}
-        </Toggle>
+      <div className="flex items-center space-x-2 absolute top-4 right-4 z-1000 bg-background/5 backdrop-blur rounded-lg">
+        <Switch id="show-buffered" onCheckedChange={setShowBuffered} />
+        <Label htmlFor="show-buffered">Show User Polygons</Label>
       </div>
     </div>
   )
