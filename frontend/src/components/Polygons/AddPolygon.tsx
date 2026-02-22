@@ -1,11 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import { type SubmitHandler, useForm } from 'react-hook-form';
-
-import { type PolygonCreate, PolygonsService } from '@/client';
-
-import useCustomToast from '@/hooks/useCustomToast';
-import { handleError } from '@/utils';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { Plus } from "lucide-react"
+import { useState } from "react"
+import { type SubmitHandler, useForm } from "react-hook-form"
+import { z } from "zod"
+import { type PolygonCreate, PolygonsService } from "@/client"
+import useCustomToast from "@/hooks/useCustomToast"
+import { handleError } from "@/utils"
+import { Button } from "../ui/button"
 import {
   Dialog,
   DialogClose,
@@ -15,12 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../ui/dialog';
-
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '../ui/button';
-import { Plus } from 'lucide-react';
+} from "../ui/dialog"
 import {
   Form,
   FormControl,
@@ -28,113 +25,112 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form';
-import { Input } from '../ui/input';
+} from "../ui/form"
+import { Input } from "../ui/input"
+import { LoadingButton } from "../ui/loading-button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
-import { LoadingButton } from '../ui/loading-button';
+} from "../ui/select"
 
 const formSchema = z.object({
-  externalPolygon: z.string().min(1, { message: 'Select a polygon' }),
+  externalPolygon: z.string().min(1, { message: "Select a polygon" }),
   buffer_size: z.number().min(0),
-});
+})
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>
 
 type ExternalPolygon = {
-  msid: number;
-  nameofarea: string;
-  positionindicator?: string;
-  geom?: string;
-};
+  msid: number
+  nameofarea: string
+  positionindicator?: string
+  geom?: string
+}
 
-const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "")
 const useExternalPolygons = () => {
   return useQuery({
-    queryKey: ['external-polygons'],
+    queryKey: ["external-polygons"],
     queryFn: async () => {
-      const res = await fetch(`${API_BASE}/api/v1/aip-polygons/`);
-      if (!res.ok) throw new Error('Failed to fetch external polygons');
-      return res.json();
+      const res = await fetch(`${API_BASE}/api/v1/aip`)
+      if (!res.ok) throw new Error("Failed to fetch external polygons")
+      return res.json()
     },
-  });
-};
+  })
+}
 
 // Takes an AIP_Polygon as input. We do not create any new polygons.
 const AddPolygon = ({
   onPolygonSelect,
 }: {
-  onPolygonSelect?: (poly: any) => void;
+  onPolygonSelect?: (poly: any) => void
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { showSuccessToast, showErrorToast } = useCustomToast();
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
 
-  const { data: externalPolygons } = useExternalPolygons();
+  const { data: externalPolygons } = useExternalPolygons()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    mode: 'onBlur',
-    criteriaMode: 'all',
+    mode: "onBlur",
+    criteriaMode: "all",
     defaultValues: {
-      externalPolygon: '',
+      externalPolygon: "",
       buffer_size: 0,
     },
-  });
+  })
 
   const mutation = useMutation({
     mutationFn: (data: PolygonCreate) =>
       PolygonsService.createPolygon({ requestBody: data }),
     onSuccess: (newPoly) => {
-      showSuccessToast('Polygon created successfully.');
+      showSuccessToast("Polygon created successfully.")
       onPolygonSelect?.({
         id: newPoly.id,
         title: newPoly.title,
+        msid: newPoly.msid,
         buffer_size: newPoly.buffer_size,
         positionindicator: newPoly.positionindicator,
         original_geometry: newPoly.original_geometry,
         buffered_geometry: newPoly.buffered_geometry,
-      });
-      form.reset();
-      setIsOpen(false);
+      })
+      form.reset()
+      setIsOpen(false)
     },
     onError: handleError.bind(showErrorToast),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['polygons'] });
+      queryClient.invalidateQueries({ queryKey: ["polygons"] })
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
     const selectedPolygon = externalPolygons?.find(
       (p: ExternalPolygon) => p.msid === Number(data.externalPolygon),
-    );
+    )
 
-    if (!selectedPolygon) return;
+    if (!selectedPolygon) return
 
     const payload: PolygonCreate = {
-      title: selectedPolygon.nameofarea,
+      msid: selectedPolygon.msid,
       buffer_size: data.buffer_size,
-      coordinates: JSON.stringify(selectedPolygon.geom),
-      positionindicator: selectedPolygon.positionindicator || '',
-    };
+    }
 
-    mutation.mutate(payload);
-  };
+    mutation.mutate(payload)
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className='my-4'>
-          <Plus className='mr-2' />
+        <Button className="my-4">
+          <Plus className="mr-2" />
           Add Polygon
         </Button>
       </DialogTrigger>
-      <DialogContent className='sm:max-w-md'>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Polygon</DialogTitle>
           <DialogDescription>
@@ -143,10 +139,10 @@ const AddPolygon = ({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className='grid gap-4 py-4'>
+            <div className="grid gap-4 py-4">
               <FormField
                 control={form.control}
-                name='externalPolygon'
+                name="externalPolygon"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Select Polygon</FormLabel>
@@ -155,8 +151,8 @@ const AddPolygon = ({
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger className='w-full max-w-64'>
-                          <SelectValue placeholder='Select a TMA' />
+                        <SelectTrigger className="w-full max-w-64">
+                          <SelectValue placeholder="Select a TMA" />
                         </SelectTrigger>
                         <SelectContent>
                           {externalPolygons?.map((poly: ExternalPolygon) => (
@@ -164,7 +160,10 @@ const AddPolygon = ({
                               key={poly.msid}
                               value={String(poly.msid)}
                             >
-                              {poly.nameofarea} | {poly.positionindicator}
+                              {poly.nameofarea.replace(
+                                "TMA",
+                                `(${poly?.positionindicator})`,
+                              )}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -176,7 +175,7 @@ const AddPolygon = ({
               />
               <FormField
                 control={form.control}
-                name='buffer_size'
+                name="buffer_size"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -184,8 +183,8 @@ const AddPolygon = ({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='Buffer Size (Nm)'
-                        type='number'
+                        placeholder="Buffer Size (Nm)"
+                        type="number"
                         {...field}
                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
                       />
@@ -198,11 +197,11 @@ const AddPolygon = ({
 
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant='outline' disabled={mutation.isPending}>
+                <Button variant="outline" disabled={mutation.isPending}>
                   Cancel
                 </Button>
               </DialogClose>
-              <LoadingButton type='submit' loading={mutation.isPending}>
+              <LoadingButton type="submit" loading={mutation.isPending}>
                 Save
               </LoadingButton>
             </DialogFooter>
@@ -210,6 +209,6 @@ const AddPolygon = ({
         </Form>
       </DialogContent>
     </Dialog>
-  );
-};
-export default AddPolygon;
+  )
+}
+export default AddPolygon
