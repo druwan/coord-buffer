@@ -4,7 +4,6 @@ import { Check, Copy } from "lucide-react"
 import type { PolygonPublic } from "@/client"
 import { Button } from "@/components/ui/button"
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
-import { cn } from "@/lib/utils"
 import { PolygonActionsMenu } from "./PolygonActionsMenu"
 
 function CopyId({ id }: { id: string }) {
@@ -31,6 +30,48 @@ function CopyId({ id }: { id: string }) {
   )
 }
 
+function CopyBuffered({
+  buffer_size,
+  buffered_geometry,
+}: {
+  buffer_size: number
+  buffered_geometry: any
+}) {
+  const [copiedText, copy] = useCopyToClipboard()
+  if (!buffered_geometry || !buffer_size) {
+    return <span className="italic text-muted-foreground">No buffer</span>
+  }
+
+  const formatCoordinates = () => {
+    if (buffered_geometry.type !== "Polygon") return ""
+
+    const coords: number[][] = buffered_geometry.coordinates[0]
+
+    return coords.map(([lng, lat]) => `${lat}, ${lng}`).join("\n")
+  }
+  const formatted = formatCoordinates()
+  const isCopied = copiedText === formatted
+
+  return (
+    <div className="flex items-center gap-1.5 group">
+      <span className="text-muted-foreground">{buffer_size} Nm</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-6 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={() => copy(formatted)}
+      >
+        {isCopied ? (
+          <Check className="size-3 text-green-500" />
+        ) : (
+          <Copy className="size-3" />
+        )}
+        <span className="sr-only">Copy coordinates</span>
+      </Button>
+    </div>
+  )
+}
+
 export const columns: ColumnDef<PolygonPublic>[] = [
   {
     accessorKey: "title",
@@ -48,16 +89,11 @@ export const columns: ColumnDef<PolygonPublic>[] = [
     accessorKey: "buffer_size",
     header: "Buffer Size",
     cell: ({ row }) => {
-      const buffer_size = row.original.buffer_size
       return (
-        <span
-          className={cn(
-            "max-w-xs truncate block text-muted-foreground",
-            !buffer_size && "italic",
-          )}
-        >
-          {buffer_size || "No description"}
-        </span>
+        <CopyBuffered
+          buffer_size={row.original.buffer_size}
+          buffered_geometry={row.original.buffered_geometry}
+        />
       )
     },
   },
