@@ -1,89 +1,135 @@
-import L from "leaflet"
-import { useEffect } from "react"
-import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet"
-
-const DEFAULT_ZOOM = 6
-const DEFAULT_CENTER: [number, number] = [59.33126388211133, 18.081407431369865]
+import maplibregl, { Popup } from 'maplibre-gl';
+import { useEffect, useRef } from 'react';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 type PolygonLayer = {
-  id: string | number
-  geometry: any
-  color: string
-  opacity?: number
-  fillOpacity?: number
-  weight: number
-  dashArray?: string
+  id: string | number;
+  geometry: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.Polygon>;
+  color: string;
+  opacity?: number;
+  fillOpacity?: number;
+  weight: number;
+  dashArray?: string;
   meta: {
-    name: string
-    bufferSize?: number
-  }
-}
+    name: string;
+    bufferSize?: number;
+  };
+};
 
 type BasePolygonMapProps = {
-  polygons: PolygonLayer[]
-  autoFit?: boolean
-}
-
-const AutoFit = ({ polygons }: { polygons: PolygonLayer[] }) => {
-  const map = useMap()
-
-  useEffect(() => {
-    if (!polygons.length) return
-    const group = L.featureGroup(polygons.map((p) => L.geoJSON(p.geometry)))
-
-    const bounds = group.getBounds()
-    if (bounds.isValid()) {
-      map.fitBounds(bounds)
-    }
-  }, [polygons, map])
-  return null
-}
-
-function createTooltipContent(meta: PolygonLayer["meta"]) {
-  const container = L.DomUtil.create("div")
-  const title = L.DomUtil.create(
-    "div",
-    "bg-background/5 backdrop-blur rounded-lg",
-    container,
-  )
-  title.textContent = meta.bufferSize
-    ? `${meta.name} + ${meta.bufferSize} Nm buffer`
-    : meta.name
-  return container
-}
+  polygons: PolygonLayer[];
+  autoFit?: boolean;
+};
 
 export const BasePolygonMap = ({
   polygons,
   autoFit = false,
 }: BasePolygonMapProps) => {
-  return (
-    <MapContainer
-      className="h-full w-full"
-      center={DEFAULT_CENTER}
-      zoom={DEFAULT_ZOOM}
-    >
-      <TileLayer url="http://localhost:8081/styles/positron/{z}/{x}/{y}.png" />
-      {polygons.map((poly) => (
-        <GeoJSON
-          key={poly.id}
-          data={poly.geometry}
-          style={{
-            color: poly.color,
-            opacity: poly.opacity ?? 1,
-            fillOpacity: poly.fillOpacity ?? 0.3,
-            weight: poly.weight ?? 2,
-            dashArray: poly.dashArray,
-          }}
-          onEachFeature={(_, layer) => {
-            layer.bindTooltip(createTooltipContent(poly.meta), {
-              sticky: true,
-              direction: "top",
-              opacity: 0.95,
-            })
-          }}
-        />
-      ))}
-      {autoFit && <AutoFit polygons={polygons} />}
-    </MapContainer>
-  )
-}
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+
+  useEffect(() => {
+    if (!mapContainer.current) return;
+
+    // Init MapLibre GL Map
+    mapRef.current = new maplibregl.Map({
+      container: mapContainer.current,
+      style: 'http://localhost:3005/styles/positron.json',
+      center: [18.0814, 59.3312],
+      zoom: 4.5,
+    });
+
+    const map = mapRef.current;
+
+    map.on('load', () => {
+      // polygon source / layers only after style loaded
+      polygons.forEach((poly) => {
+        const sourceId = `poly-source-${poly.id}`;
+        const fillLayerId = `poly-fill-${poly.id}`;
+        const lineLayerId = `poly-line-${poly.id}`;
+
+        // add source
+        map.addSource(sourceId, {
+          type: 'geojson',
+          data: poly.geometry,
+        });
+
+        // add fill
+        map.addLayer({
+          id: fillLayerId,
+          type: 'fill',
+          source: sourceId,
+          paint: {
+            'fill-color': poly.color,
+            'fill-opacity': poly.fillOpacity ?? 0.3,
+          },
+        });
+
+        // outline
+        map.addLayer({
+          id: lineLayerId,
+          type: 'line',
+          source: sourceId,
+          paint: {
+            'line-color': poly.color,
+            'line-opacity': poly.opacity ?? 1,
+            'line-width': poly.weight ?? 2,
+            'line-dasharray':
+              poly.dashArray?.split(',').map(Number) ?? undefined,
+          },
+        });
+
+        // popup on click
+        map.on('click', fillLayerId, (e) => {
+          new Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(
+              poly.meta.bufferSize
+                ? `${poly.meta.name} + ${poly.meta.bufferSize} Nm buffer`
+                : poly.meta.name,
+            )
+            .addTo(map);
+        });
+
+        map.on('mouseenter', fillLayerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', fillLayerId, () => {
+          map.getCanvas().style.cursor = '';
+        });
+      });
+
+      // auto-fit
+      if (autoFit && polygons.length > 0) {
+        const bounds = new maplibregl.LngLatBounds();
+
+        polygons.forEach((poly) => {
+          const geom = poly.geometry.geometry;
+          if (geom.type === 'Polygon') {
+            geom.coordinates.forEach((ring) =>
+              ring.forEach((coord) => bounds.extend(coord as [number, number])),
+            );
+          } else {
+            geom.coordinates.forEach((polygon) =>
+              polygon.forEach((ring) =>
+                ring.forEach((coord) =>
+                  bounds.extend(coord as [number, number]),
+                ),
+              ),
+            );
+          }
+        });
+
+        if (!bounds.isEmpty()) {
+          map.fitBounds(bounds, { padding: 40 });
+        }
+      }
+    });
+
+    return () => {
+      mapRef.current?.remove();
+    };
+  }, [polygons, autoFit]);
+
+  return <div ref={mapContainer} className='h-full w-full' />;
+};
