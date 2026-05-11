@@ -1,4 +1,13 @@
 services:
+  tileserver:
+    image: ghcr.io/maplibre/martin:1.5.0
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    volumes:
+      - ./map/:/data
+    command: ["--config", "/data/config.yaml"]
+
   db:
     image: postgres:18
     restart: always

@@ -1,0 +1,110 @@
+# Connection keep alive timeout [default: 75]
+keep_alive: 75
+
+# The socket address to bind [default: 0.0.0.0:3000]
+listen_addresses: "0.0.0.0:3000"
+
+# Set the URL path prefix for all API routes.
+# When set, Martin will serve all endpoints under this path prefix.
+# This allows Martin to be served under a subpath when behind a reverse proxy (e.g., Traefik).
+# Must begin with a `/`.
+# Examples: `/tiles`, `/api/v1/tiles`
+route_prefix: null
+
+# Set TileJSON URL path prefix.
+# This overrides the default path prefix for URLs in TileJSON responses.
+# If both `route_prefix` and `base_path` are set, `base_path` takes priority for TileJSON URLs.
+# If neither is set, the X-Rewrite-URL header is respected.
+# Must begin with a `/`.
+# Examples: `/`, `/tiles`
+base_path: null
+
+# Number of web server workers
+worker_processes: 8
+
+# Specify each cache size individually for finer cache size control:
+# - Tiles: `tile_cache_size_mb`
+# - Pmtiles: `pmtiles.directory_cache_size_mb`
+# - Fonts: `fonts.cache_size_mb`
+# - Sprites: `sprites.cache_size_mb`
+cache_size_mb: 512
+
+# Allows overriding the size of the tile cache.
+# Defaults to `cache_size_mb` / 2
+tile_cache_size_mb: 256
+
+# Which compression should be used if the
+# - client accepts multiple compression formats, and
+# - tile source is not pre-compressed.
+#
+# `gzip` is faster, but `brotli` is smaller, and may be faster with caching.
+# Default could be different depending on Martin version.
+preferred_encoding: gzip
+
+# Enable or disable Martin web UI. [default: disable]
+#
+# At the moment, only allows `enable-for-all`, which enables the web UI for all connections.
+# This may be undesirable in a production environment
+web_ui: enable-for-all
+
+# The policy for handling invalid sources during startup. [default: abort]
+#
+# Invalid sources are those that are missing (file not found, table doesn't exist, ...),
+# reference columns that don't exist, and so on.
+# Currently limited to tile sources; broader rollout is planned.
+#
+# Options:
+# - `warn`: log warning messages
+# - `abort`: log warnings as error messages, abort startup
+on_invalid: abort
+
+# Publish MBTiles files
+mbtiles:
+  paths:
+    # scan this whole dir, matching all *.mbtiles files
+    # - /data
+    # specific mbtiles file will be published as mbtiles2 source
+    # - /path/to/mbtiles.mbtiles
+    # - /data/europe.mbtiles
+    - /data/planet.mbtiles
+  # sources:
+  #   # named source matching source name to a single file
+  #   mb-src1: /path/to/mbtiles1.mbtiles
+
+# Sprite configuration
+sprites:
+  # Size of the sprite cache (in MB).
+  # Defaults to cache_size_mb / 8
+  cache_size_mb: 64
+
+  # paths:
+  # all SVG files in this dir will be published as a "my_images" sprite source
+  # - /data/sprites
+  sources:
+    # SVG images in this directory will be published as a "my_sprites" sprite source
+    positron: /data/sprites/positron/icons
+    # maki: /data/sprites/maki/icons
+    #   my_sprites: /path/to/some_dir
+
+# Font configuration
+fonts:
+  # Size of the sprite cache (in MB).
+  # Defaults to cache_size_mb / 4
+  cache_size_mb: 64
+
+  # A list of *.otf, *.ttf, and *.ttc font files and dirs to search recursively.
+  paths:
+    # - /data/fonts/font/file.ttf
+    - /data/fonts
+
+# Publish MapLibre style files
+# In the future, the style files will be used for the server-side rendering as well
+styles:
+  paths:
+    # publish all *.json files in this directory
+    # The name of the file will be used as the style name
+    - /data/styles
+    # publish a single file - here `maplibre_style` will be the style name
+    # - /path/to/maplibre_style.json
+
+tilejson_url_version_param: null # a string, such as `version` or `v`

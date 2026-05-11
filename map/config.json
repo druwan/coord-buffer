@@ -1,0 +1,83 @@
+{
+  "options": {
+    "paths": {
+      "root": "",
+      "fonts": "fonts",
+      "sprites": "sprites"
+    },
+    "domains": [
+      "localhost:8081",
+      "*"
+    ],
+    "formatOptions": {
+      "jpeg": {
+        "quality": 80
+      },
+      "png": {
+        "palette": true,
+        "colors": 4
+      },
+      "webp": {
+        "quality": 90
+      }
+    },
+    "serveCORS": true,
+    "serveJsonMime": true,
+    "pbfAlias": "pbf",
+    "serveAllStyles": false,
+    "serveStaticMaps": true,
+    "allowRemoteMarkerIcons": true,
+    "allowRemoteMarkerImages": true,
+    "staticAttributionText": "© OpenMapTiles © OpenStreetMap",
+    "tileMargin": 0
+  },
+  "styles": {
+    "maptiler-basic-gl-style": {
+      "style": "styles/maptiler-basic-gl-style/style.json",
+      "serve_rendered": true,
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [
+          10.54138,
+          55.02652,
+          24.22472,
+          69.06643
+        ]
+      }
+    },
+    "positron": {
+      "style": "styles/positron/style.json",
+      "serve_rendered": true,
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [
+          10.54138,
+          55.02652,
+          24.22472,
+          69.06643
+        ]
+      }
+    },
+    "stamen": {
+      "style": "styles/stamen/style.json",
+      "serve_rendered": true,
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [
+          10.54138,
+          55.02652,
+          24.22472,
+          69.06643
+        ]
+      }
+    }
+  },
+  "data": {
+    "sweden": {
+      "mbtiles": "sweden.mbtiles"
+    },
+    "europe": {
+      "mbtiles": "europe.mbtiles"
+    }
+  }
+}
